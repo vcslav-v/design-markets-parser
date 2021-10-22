@@ -6,10 +6,22 @@ authors = ["vaclav-v"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+requests = "^2.26.0"
+loguru = "^0.5.3"
+APScheduler = "^3.8.0"
+Flask = "^2.0.2"
+Flask-Bootstrap = "^3.3.7"
+Flask-WTF = "^0.15.1"
+selenium = "^4.0.0"
+SQLAlchemy = "^1.4.26"
+psycopg2-binary = "^2.9.1"
+alembic = "^1.7.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
 mypy = "^0.910"
+types-requests = "^2.25.11"
+sqlalchemy-stubs = "^0.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
