@@ -62,5 +62,6 @@ def parse(username):
     browser.save_cookies(driver, 'https://creativemarket.com', username)
     push_data_csv(driver)
 
+
 def add_data():
     pass
