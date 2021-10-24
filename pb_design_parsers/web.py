@@ -4,6 +4,7 @@ import os
 
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
+from loguru import logger
 
 from pb_design_parsers import UPLOAD_DIR, SPLITTER
 
@@ -14,7 +15,9 @@ app = Flask(__name__)
 def upload_data():
     if request.method == 'POST':
         data_files = request.files.getlist('data_file')
+        logger.debug(data_files)
         prefix = request.form.get('prefix')
+        logger.debug(prefix)
         if data_files:
             upload(data_files, prefix)
     return render_template('upload_data.html')
