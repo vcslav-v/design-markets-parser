@@ -4,6 +4,7 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
+from loguru import logger
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -91,6 +92,7 @@ def add_data(username):
         reader = csv.reader(csv_file)
         next(reader, None)
         for row in reader:
+            logger.debug(row)
             date, product, customer, price, earnings = row[0], row[2], row[3], row[4], row[5]
             date = datetime.fromisoformat(date)
             price = int(float(price.replace(',', '')) * 100)
@@ -98,4 +100,5 @@ def add_data(username):
             reffered = True if customer == 'Referred Customer' else False
 
             if last_data_day < date.date() < today:
+                logger.debug(row)
                 db_tools.add_sale(date, price, earnings, product, reffered)

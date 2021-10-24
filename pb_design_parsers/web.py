@@ -3,6 +3,7 @@
 import os
 from datetime import datetime
 from threading import Thread
+from loguru import logger
 
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
@@ -31,6 +32,7 @@ def upload_data_manual():
         username = get_username(prefix)
         if data_files:
             upload(data_files, prefix)
+            
             thread = Thread(
                 target=creative.add_data,
                 args=(username)
@@ -46,6 +48,7 @@ def upload(files, prefix, directory=UPLOAD_DIR):
         timestamp = int(datetime.utcnow().timestamp())
         filename = f'{prefix}{SPLITTER}{timestamp}{SPLITTER}{secure_filename(up_file.filename)}'
         up_file.save(os.path.join(directory, filename))
+        logger.debug(os.listdir(directory))
 
 
 def get_username(prexix: str) -> str:
