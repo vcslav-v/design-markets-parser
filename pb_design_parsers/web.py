@@ -1,14 +1,14 @@
 """Web endpoints."""
 
 import os
-from re import T
+from datetime import datetime
+from threading import Thread
 
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
-from datetime import datetime
-from pb_design_parsers import UPLOAD_DIR, SPLITTER
-import creative
-from threading import Thread
+
+from pb_design_parsers import creative
+from pb_design_parsers import SPLITTER, UPLOAD_DIR
 
 app = Flask(__name__)
 
