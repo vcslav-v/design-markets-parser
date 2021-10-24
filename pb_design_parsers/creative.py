@@ -80,7 +80,7 @@ def parse(username, password):
         login(driver, username, password)
     get_data_csv(driver)
     browser.save_cookies(driver, 'https://creativemarket.com', username)
-    push_data_csv(driver, username)    
+    push_data_csv(driver, username)
 
 
 def add_data(username):
