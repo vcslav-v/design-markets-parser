@@ -641,7 +641,7 @@ locale = ["Babel (>=1.3)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8226d1b90f77bb2dead44dfd88f38901bff385c598bd0fcfa167b1c0d405cb10"
+content-hash = "8222837808fbdc6046e42d969237ebb8c2f94ece2c06e4372fabd0cf079b3787"
 
 [metadata.files]
 alembic = [

@@ -3,6 +3,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from loguru import logger
 import requests
 import os
+import creative
 
 
 sched = BlockingScheduler()
@@ -20,10 +21,15 @@ def send_tg_alarm(message):
 @logger.catch
 @sched.scheduled_job('cron', hour=1)
 def parse_creative_market():
-    pass
+    creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
+
+
+@logger.catch
+@sched.scheduled_job('cron', hour=2)
+def parse_creative_market_csv():
+    creative.add_data(os.environ.get('CM_USER'))
 
 
 if __name__ == "__main__":
-    # logger.add(sink=send_tg_alarm)
-    # sched.start()
-    parse_creative_market()
+    logger.add(sink=send_tg_alarm)
+    sched.start()

@@ -2,13 +2,16 @@
 
 import os
 from time import sleep
+import csv
+from datetime import datetime
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
 import browser
-from pb_design_parsers import UPLOAD_DIR
+import db_tools
+from pb_design_parsers import UPLOAD_DIR, CM_PB_PREFIX
 
 
 def uploaded_files(prefix):
@@ -18,13 +21,13 @@ def uploaded_files(prefix):
             os.remove(os.path.join(UPLOAD_DIR, file_path))
 
 
-def login(driver, username):
+def login(driver, username, password):
     input_username = WebDriverWait(driver, timeout=20).until(
         lambda d: d.find_element(By.XPATH, '//input[@name="username"]')
     )
     input_username.send_keys(username)
     input_pass = driver.find_element(By.XPATH, '//input[@name="password"]')
-    input_pass.send_keys(os.environ.get(f'CREATIVE_PASS_{username}'))
+    input_pass.send_keys(password)
     sleep(1)
     log_button = driver.find_element(By.XPATH, '//form/button')
     log_button.click()
@@ -44,11 +47,28 @@ def get_data_csv(driver):
     export_button.click()
 
 
-def push_data_csv(driver):
-    pass
+def push_data_csv(driver, username):
+    driver.get('https://dm-parser.herokuapp.com/upload-data')
+    try:
+        input_file = WebDriverWait(driver, timeout=20).until(
+            lambda d: d.find_element(By.XPATH, '//input[@name="data_file"]')
+        )
+    except TimeoutError:
+        driver.get('https://dm-parser.herokuapp.com/upload-data')
+        input_file = WebDriverWait(driver, timeout=20).until(
+            lambda d: d.find_element(By.XPATH, '//input[@name="data_file"]')
+        )
+    input_file.send_keys('/home/selenium/Downloads/Creative Market Sales.csv')
+    input_prefix = driver.find_element(By.XPATH, '//input[@name="prefix"]')
+    input_prefix.send_keys(CM_PB_PREFIX.format(username=username))
+    submit_button = driver.find_element(
+        By.XPATH,
+        '//input[@name="data_file"]/../button[@type="submit"]'
+    )
+    submit_button.click()
 
 
-def parse(username):
+def parse(username, password):
     driver = browser.get()
     browser.set_cookies('https://creativemarket.com', username)
     driver.get('https://creativemarket.com/sign-in')
@@ -57,11 +77,26 @@ def parse(username):
                 lambda d: d.find_element(By.ID, 'header-cart')
             )
     except TimeoutException:
-        login(driver, username)
+        login(driver, username, password)
     get_data_csv(driver)
     browser.save_cookies(driver, 'https://creativemarket.com', username)
-    push_data_csv(driver)
+    push_data_csv(driver, username)    
 
 
-def add_data():
-    pass
+def add_data(username):
+    today = datetime.utcnow().date()
+    last_data_day = datetime.fromtimestamp(0).date()
+    path = uploaded_files(CM_PB_PREFIX.format(username=username))
+
+    with open(path, 'r') as csv_file:
+        reader = csv.reader(csv_file)
+        next(reader, None)
+        for row in reader:
+            date, product, customer, price, earnings = row[0], row[2], row[3], row[4], row[5]
+            date = datetime.fromisoformat(date)
+            price = int(float(price.replace(',', '')) * 100)
+            earnings = int(float(earnings.replace(',', '')) * 100)
+            reffered = True if customer == 'Referred Customer' else False
+
+            if last_data_day < date.date() < today:
+                db_tools.add_sale(date, price, earnings, product, reffered)
