@@ -5,7 +5,7 @@ import os
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 
-from pb_design_parsers import UPLOAD_DIR
+from pb_design_parsers import UPLOAD_DIR, SPLITTER
 
 app = Flask(__name__)
 
@@ -24,5 +24,5 @@ def upload(files, prefix, directory=UPLOAD_DIR):
     if not os.path.isdir(directory):
         os.mkdir(directory)
     for up_file in files:
-        filename = f'{prefix}-{secure_filename(up_file.filename)}'
+        filename = f'{prefix}{SPLITTER}{secure_filename(up_file.filename)}'
         up_file.save(os.path.join(directory, filename))

@@ -11,12 +11,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 import browser
 import db_tools
-from pb_design_parsers import UPLOAD_DIR, CM_PB_PREFIX
+from pb_design_parsers import UPLOAD_DIR, CM_PB_PREFIX, SPLITTER
 
 
 def uploaded_files(prefix):
     for file_path in os.listdir(UPLOAD_DIR):
-        if file_path.split('-')[0] == prefix:
+        if file_path.split(SPLITTER)[0] == prefix:
             yield os.path.join(UPLOAD_DIR, file_path)
             os.remove(os.path.join(UPLOAD_DIR, file_path))
 
