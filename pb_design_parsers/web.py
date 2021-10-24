@@ -32,10 +32,10 @@ def upload_data_manual():
         username = get_username(prefix)
         if data_files:
             upload(data_files, prefix)
-            
+
             thread = Thread(
                 target=creative.add_data,
-                args=(username)
+                args=(username,)
             )
             thread.start()
     return render_template('upload_data.html')
