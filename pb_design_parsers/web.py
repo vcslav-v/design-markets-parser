@@ -1,11 +1,14 @@
 """Web endpoints."""
 
 import os
+from re import T
 
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from pb_design_parsers import UPLOAD_DIR, SPLITTER
+import creative
+from threading import Thread
 
 app = Flask(__name__)
 
@@ -20,6 +23,22 @@ def upload_data():
     return render_template('upload_data.html')
 
 
+@app.route("/upload-data-manual",  methods=['GET', 'POST'])
+def upload_data_manual():
+    if request.method == 'POST':
+        data_files = request.files.getlist('data_file')
+        prefix = request.form.get('prefix')
+        username = get_username(prefix)
+        if data_files:
+            upload(data_files, prefix)
+            thread = Thread(
+                target=creative.add_data,
+                args=(username)
+            )
+            thread.start()
+    return render_template('upload_data.html')
+
+
 def upload(files, prefix, directory=UPLOAD_DIR):
     if not os.path.isdir(directory):
         os.mkdir(directory)
@@ -27,3 +46,7 @@ def upload(files, prefix, directory=UPLOAD_DIR):
         timestamp = int(datetime.utcnow().timestamp())
         filename = f'{prefix}{SPLITTER}{timestamp}{SPLITTER}{secure_filename(up_file.filename)}'
         up_file.save(os.path.join(directory, filename))
+
+
+def get_username(prexix: str) -> str:
+    return prexix.split()[1]
