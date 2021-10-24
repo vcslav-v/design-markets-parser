@@ -87,7 +87,7 @@ def add_data(username):
     today = datetime.utcnow().date()
     last_data_day = datetime.fromtimestamp(0).date()
     path = uploaded_files(CM_PB_PREFIX.format(username=username))
-
+    logger.debug(path)
     with open(path, 'r') as csv_file:
         reader = csv.reader(csv_file)
         next(reader, None)
