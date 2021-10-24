@@ -3,7 +3,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from loguru import logger
 import requests
 import os
-import creative
+from pb_design_parsers import creative
 
 
 sched = BlockingScheduler()

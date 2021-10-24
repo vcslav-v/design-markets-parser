@@ -3,7 +3,7 @@ from time import sleep
 import json
 import os
 from urllib.parse import urlparse
-import db_tools
+from pb_design_parsers import db_tools
 
 
 def get() -> webdriver.Remote:

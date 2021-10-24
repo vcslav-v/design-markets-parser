@@ -1,8 +1,7 @@
 import json
 import os
 
-import db
-import models
+from pb_design_parsers import db, models
 from cryptography.fernet import Fernet
 from datetime import datetime
 
@@ -43,7 +42,7 @@ def set_cookies(domain: str, username: str, cookies: list):
 
         market_place = session.query(models.MarketPlace).filter_by(name=domain).first()
         if not market_place:
-            market_place = models.MarketPlace(name=domain)
+            market_place = models.MarketPlace(domain=domain)
             session.add(market_place)
 
         account = session.query(models.Account).filter_by(

@@ -9,8 +9,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
-import browser
-import db_tools
+from pb_design_parsers import browser, db_tools
 from pb_design_parsers import UPLOAD_DIR, CM_PB_PREFIX, SPLITTER
 
 
