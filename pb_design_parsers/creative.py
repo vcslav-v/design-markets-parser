@@ -86,19 +86,18 @@ def parse(username, password):
 def add_data(username):
     today = datetime.utcnow().date()
     last_data_day = datetime.fromtimestamp(0).date()
-    path = uploaded_files(CM_PB_PREFIX.format(username=username))
-    logger.debug(path)
-    with open(path, 'r') as csv_file:
-        reader = csv.reader(csv_file)
-        next(reader, None)
-        for row in reader:
-            logger.debug(row)
-            date, product, customer, price, earnings = row[0], row[2], row[3], row[4], row[5]
-            date = datetime.fromisoformat(date)
-            price = int(float(price.replace(',', '')) * 100)
-            earnings = int(float(earnings.replace(',', '')) * 100)
-            reffered = True if customer == 'Referred Customer' else False
+    paths = uploaded_files(CM_PB_PREFIX.format(username=username))
 
-            if last_data_day < date.date() < today:
-                logger.debug(row)
-                db_tools.add_sale(date, price, earnings, product, reffered)
+    for path in paths:
+        with open(path, 'r') as csv_file:
+            reader = csv.reader(csv_file)
+            next(reader, None)
+            for row in reader:
+                date, product, customer, price, earnings = row[0], row[2], row[3], row[4], row[5]
+                date = datetime.fromisoformat(date)
+                price = int(float(price.replace(',', '')) * 100)
+                earnings = int(float(earnings.replace(',', '')) * 100)
+                reffered = True if customer == 'Referred Customer' else False
+
+                if last_data_day < date.date() < today:
+                    db_tools.add_sale(date, price, earnings, product, reffered)
