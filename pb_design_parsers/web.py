@@ -38,7 +38,7 @@ def upload_data_manual():
                 args=(username,)
             )
             thread.start()
-    return render_template('upload_data.html')
+    return render_template('upload_data_manual.html')
 
 
 def upload(files, prefix, directory=UPLOAD_DIR):
