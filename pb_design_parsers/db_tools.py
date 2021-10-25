@@ -40,7 +40,7 @@ def set_cookies(domain: str, username: str, cookies: list):
         key = os.environ.get('KEY') or 'secret'
         fernet = Fernet(key.encode('UTF-8'))
 
-        market_place = session.query(models.MarketPlace).filter_by(name=domain).first()
+        market_place = session.query(models.MarketPlace).filter_by(domain=domain).first()
         if not market_place:
             market_place = models.MarketPlace(domain=domain)
             session.add(market_place)
@@ -63,7 +63,7 @@ def set_cookies(domain: str, username: str, cookies: list):
 
 def delete_cookies(domain: str, username: str):
     with db.SessionLocal() as session:
-        market_place = session.query(models.MarketPlace).filter_by(name=domain).first()
+        market_place = session.query(models.MarketPlace).filter_by(domain=domain).first()
         if not market_place:
             return
 
@@ -82,8 +82,22 @@ def delete_cookies(domain: str, username: str):
             session.commit()
 
 
-def add_sale(date: datetime, price: int, earnings: int, product, reffered):
+def add_sale(
+    date: datetime,
+    price: int,
+    earnings: int,
+    product: str,
+    reffered: bool,
+    market_place_domain: str,
+):
     with db.SessionLocal() as session:
+        market_place = session.query(models.MarketPlace).filter_by(
+            domain=market_place_domain
+        ).first()
+        if not market_place:
+            market_place = models.MarketPlace(domain=market_place_domain)
+            session.add(market_place)
+
         db_product = session.query(models.Product).filter_by(name=product).first()
         if not db_product:
             db_product = models.Product(
@@ -99,6 +113,7 @@ def add_sale(date: datetime, price: int, earnings: int, product, reffered):
             price_cents=price,
             earning_cents=earnings,
             product=db_product,
+            market_place=market_place,
         )
         session.add(sale)
 

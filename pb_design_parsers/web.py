@@ -29,15 +29,16 @@ def upload_data_manual():
     if request.method == 'POST':
         data_files = request.files.getlist('data_file')
         prefix = request.form.get('prefix')
-        username = get_username(prefix)
+        market_place, username, *_ = prefix.split()
         if data_files:
             upload(data_files, prefix)
 
-            thread = Thread(
-                target=creative.add_data,
-                args=(username,)
-            )
-            thread.start()
+            if market_place == 'cm':
+                thread = Thread(
+                    target=creative.add_data,
+                    args=(username,)
+                )
+                thread.start()
     return render_template('upload_data_manual.html')
 
 

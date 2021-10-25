@@ -4,7 +4,6 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
-from loguru import logger
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -87,6 +86,7 @@ def add_data(username):
     today = datetime.utcnow().date()
     last_data_day = datetime.fromtimestamp(0).date()
     paths = uploaded_files(CM_PB_PREFIX.format(username=username))
+    cm_domain = 'creativemarket.com'
 
     for path in paths:
         with open(path, 'r') as csv_file:
@@ -100,4 +100,4 @@ def add_data(username):
                 reffered = True if customer == 'Referred Customer' else False
 
                 if last_data_day < date.date() < today:
-                    db_tools.add_sale(date, price, earnings, product, reffered)
+                    db_tools.add_sale(date, price, earnings, product, reffered, cm_domain)

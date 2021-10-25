@@ -33,6 +33,9 @@ class Sale(Base):
     product_id = Column(Integer, ForeignKey('products.id'))
     product = relationship('Product', back_populates='sales')
 
+    market_place_id = Column(Integer, ForeignKey('market_places.id'))
+    market_place = relationship('MarketPlace', back_populates='sales')
+
 
 class MarketPlace(Base):
     """Market place."""
@@ -44,6 +47,7 @@ class MarketPlace(Base):
     domain = Column(Text, unique=True)
 
     accounts = relationship('Account', back_populates='market_place')
+    sales = relationship('Sale', back_populates='market_place')
 
 
 class Account(Base):

@@ -77,9 +77,6 @@ db_revision:
 db_update:
 	poetry run alembic upgrade head
 
-req:
-	poetry export>requirements.txt
-
 test_db:
 	docker run --name test-postgres -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=postgres -d -p 5432:5432 postgres
 
