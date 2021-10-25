@@ -108,11 +108,7 @@ def add_sale(
                 name=product if not reffered else REFER_PRODUCT_NAME,
             )
             session.add(db_product)
-        sale = session.query(models.Sale).filter_by(
-            product=db_product,
-            market_place=market_place,
-            date=date
-        ).first()
+
         sale = models.Sale(
             date=date,
             price_cents=price,
