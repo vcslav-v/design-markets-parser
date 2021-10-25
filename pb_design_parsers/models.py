@@ -1,5 +1,5 @@
 """DataBase models."""
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text, LargeBinary, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, Text, LargeBinary, Boolean, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -26,7 +26,7 @@ class Sale(Base):
 
     id = Column(Integer, primary_key=True)
 
-    date = Column(DateTime)
+    date = Column(Date)
     price_cents = Column(Integer)
     earning_cents = Column(Integer)
 

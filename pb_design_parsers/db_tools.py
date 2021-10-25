@@ -2,6 +2,7 @@ import json
 import os
 
 from pb_design_parsers import db, models
+from pb_design_parsers import REFER_PRODUCT_NAME
 from cryptography.fernet import Fernet
 from datetime import datetime
 
@@ -97,17 +98,21 @@ def add_sale(
         if not market_place:
             market_place = models.MarketPlace(domain=market_place_domain)
             session.add(market_place)
+        if reffered:
+            db_product = session.query(models.Product).filter_by(name=REFER_PRODUCT_NAME).first()
+        else:
+            db_product = session.query(models.Product).filter_by(name=product).first()
 
-        db_product = session.query(models.Product).filter_by(name=product).first()
         if not db_product:
             db_product = models.Product(
-                name=product,
-                own=not reffered,
+                name=product if not reffered else REFER_PRODUCT_NAME,
             )
             session.add(db_product)
-        elif db_product.own is False and reffered is False:
-            db_product.own = True
-
+        sale = session.query(models.Sale).filter_by(
+            product=db_product,
+            market_place=market_place,
+            date=date
+        ).first()
         sale = models.Sale(
             date=date,
             price_cents=price,
@@ -115,6 +120,20 @@ def add_sale(
             product=db_product,
             market_place=market_place,
         )
-        session.add(sale)
 
+        session.add(sale)
         session.commit()
+
+
+def get_last_date_in_db(domain):
+    with db.SessionLocal() as session:
+        market_place = session.query(models.MarketPlace).filter_by(domain=domain).first()
+        if not market_place:
+            return datetime.fromtimestamp(0).date()
+        sale = session.query(models.Sale).filter_by(
+            market_place=market_place
+        ).order_by(models.Sale.date.desc()).first()
+        if sale:
+            return sale.date
+        else:
+            return datetime.fromtimestamp(0).date()

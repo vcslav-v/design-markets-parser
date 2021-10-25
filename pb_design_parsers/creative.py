@@ -84,9 +84,9 @@ def parse(username, password):
 
 def add_data(username):
     today = datetime.utcnow().date()
-    last_data_day = datetime.fromtimestamp(0).date()
-    paths = uploaded_files(CM_PB_PREFIX.format(username=username))
     cm_domain = 'creativemarket.com'
+    last_data_day = db_tools.get_last_date_in_db(cm_domain)
+    paths = uploaded_files(CM_PB_PREFIX.format(username=username))
 
     for path in paths:
         with open(path, 'r') as csv_file:
@@ -94,7 +94,7 @@ def add_data(username):
             next(reader, None)
             for row in reader:
                 date, product, customer, price, earnings = row[0], row[2], row[3], row[4], row[5]
-                date = datetime.fromisoformat(date)
+                date = datetime.fromisoformat(date).date()
                 price = int(float(price.replace(',', '')) * 100)
                 earnings = int(float(earnings.replace(',', '')) * 100)
                 reffered = True if customer == 'Referred Customer' else False
