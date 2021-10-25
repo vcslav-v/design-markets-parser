@@ -1,5 +1,5 @@
 """DataBase models."""
-from sqlalchemy import Column, ForeignKey, Integer, Text, LargeBinary, Boolean, Date
+from sqlalchemy import Column, ForeignKey, Integer, Text, LargeBinary, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -14,7 +14,6 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
 
     name = Column(Text, unique=True)
-    own = Column(Boolean)
 
     sales = relationship('Sale', back_populates='product')
 

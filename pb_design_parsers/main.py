@@ -21,12 +21,14 @@ def send_tg_alarm(message):
 @logger.catch
 @sched.scheduled_job('cron', hour=1)
 def parse_creative_market():
+    logger.info('Start parsing')
     creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
 
 
 @logger.catch
 @sched.scheduled_job('cron', hour=2)
 def parse_creative_market_csv():
+    logger.info('Start data mining')
     creative.add_data(os.environ.get('CM_USER'))
 
 
