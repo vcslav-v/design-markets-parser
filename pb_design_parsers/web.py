@@ -19,16 +19,6 @@ def upload_data():
     if request.method == 'POST':
         data_files = request.files.getlist('data_file')
         prefix = request.form.get('prefix')
-        if data_files:
-            upload(data_files, prefix)
-    return render_template('upload_data.html')
-
-
-@app.route("/upload-data-manual",  methods=['GET', 'POST'])
-def upload_data_manual():
-    if request.method == 'POST':
-        data_files = request.files.getlist('data_file')
-        prefix = request.form.get('prefix')
         market_place, username, *_ = prefix.split()
         if data_files:
             upload(data_files, prefix)
@@ -39,7 +29,7 @@ def upload_data_manual():
                     args=(username,)
                 )
                 thread.start()
-    return render_template('upload_data_manual.html')
+    return render_template('upload_data.html')
 
 
 def upload(files, prefix, directory=UPLOAD_DIR):

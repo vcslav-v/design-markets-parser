@@ -37,7 +37,7 @@ def login(driver, username, password):
 
 def get_data_csv(driver):
     driver.get('https://creativemarket.com/account/dashboard/sales')
-    
+
     try:
         dialog_dismiss_btn = WebDriverWait(driver, timeout=20).until(
             lambda d: d.find_element(
