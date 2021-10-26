@@ -1,3 +1,4 @@
+from datetime import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from loguru import logger
@@ -30,6 +31,13 @@ def parse_creative_market():
 def parse_creative_market_csv():
     logger.info('Start data mining')
     creative.add_data(os.environ.get('CM_USER'))
+
+
+@logger.catch
+@sched.scheduled_job('interval', minutes=1)
+def test_job():
+    
+    logger.info(f'TEST {datetime.utcnow()}')
 
 
 if __name__ == "__main__":
