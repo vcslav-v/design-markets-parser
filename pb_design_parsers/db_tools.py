@@ -98,7 +98,23 @@ def add_sale(
         ).first()
         if not market_place:
             market_place = models.MarketPlace(domain=market_place_domain)
+            account = models.Account(
+                username=username,
+                market_place=market_place,
+            )
+            session.add(account)
             session.add(market_place)
+        else:
+            account = session.query(models.Account).filter_by(
+                username=username,
+                market_place=market_place,
+            ).first()
+            if not account:
+                account = models.Account(
+                    username=username,
+                    market_place=market_place,
+                )
+                session.add(account)
         if reffered:
             db_product = session.query(models.Product).filter_by(name=REFER_PRODUCT_NAME).first()
         else:
@@ -110,16 +126,8 @@ def add_sale(
             )
             session.add(db_product)
 
-        account = session.query(models.Account).filter_by(
-            username=username,
-            market_place=market_place,
-        ).first()
-        if not account:
-            account = models.Account(
-                username=username,
-                market_place=market_place,
-            )
-            session.add(account)
+        
+            
 
         sale = models.Sale(
             date=date,
