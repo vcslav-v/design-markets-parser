@@ -35,6 +35,9 @@ class Sale(Base):
     market_place_id = Column(Integer, ForeignKey('market_places.id'))
     market_place = relationship('MarketPlace', back_populates='sales')
 
+    account_id = Column(Integer, ForeignKey('accounts.id'))
+    account = relationship('Account', back_populates='sales')
+
 
 class MarketPlace(Base):
     """Market place."""
@@ -62,6 +65,8 @@ class Account(Base):
     market_place = relationship('MarketPlace', back_populates='accounts')
 
     cookies = relationship('Cookie', back_populates='account')
+
+    sales = relationship('Sale', back_populates='account')
 
 
 class Cookie(Base):

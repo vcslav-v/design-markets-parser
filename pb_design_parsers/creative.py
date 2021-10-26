@@ -110,4 +110,4 @@ def add_data(username):
                 reffered = True if customer == 'Referred Customer' else False
 
                 if last_data_day < date < today:
-                    db_tools.add_sale(date, price, earnings, product, reffered, cm_domain)
+                    db_tools.add_sale(date, price, earnings, product, reffered, cm_domain, username)

@@ -23,6 +23,7 @@ def send_tg_alarm(message):
 def parse_creative_market():
     logger.info('Start parsing')
     creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
+    creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
 
 
 if __name__ == "__main__":

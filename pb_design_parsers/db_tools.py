@@ -90,6 +90,7 @@ def add_sale(
     product: str,
     reffered: bool,
     market_place_domain: str,
+    username: str
 ):
     with db.SessionLocal() as session:
         market_place = session.query(models.MarketPlace).filter_by(
@@ -109,25 +110,46 @@ def add_sale(
             )
             session.add(db_product)
 
+        account = session.query(models.Account).filter_by(
+            username=username,
+            market_place=market_place,
+        ).first()
+        if not account:
+            account = models.Account(
+                username=username,
+                market_place=market_place,
+            )
+            session.add(account)
+
         sale = models.Sale(
             date=date,
             price_cents=price,
             earning_cents=earnings,
             product=db_product,
             market_place=market_place,
+            account=account,
         )
 
         session.add(sale)
         session.commit()
 
 
-def get_last_date_in_db(domain):
+def get_last_date_in_db(domain, username):
     with db.SessionLocal() as session:
+
         market_place = session.query(models.MarketPlace).filter_by(domain=domain).first()
         if not market_place:
             return datetime.fromtimestamp(0).date()
+
+        account = session.query(models.Account).filter_by(
+            username=username, market_place=market_place
+        ).first()
+        if not account:
+            return datetime.fromtimestamp(0).date()
+
         sale = session.query(models.Sale).filter_by(
-            market_place=market_place
+            market_place=market_place,
+            account=account,
         ).order_by(models.Sale.date.desc()).first()
         if sale:
             return sale.date
