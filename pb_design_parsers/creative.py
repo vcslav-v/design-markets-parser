@@ -95,7 +95,7 @@ def parse(username, password):
 def add_data(username):
     today = datetime.utcnow().date()
     cm_domain = 'creativemarket.com'
-    last_data_day = db_tools.get_last_date_in_db(cm_domain)
+    last_data_day = db_tools.get_last_date_in_db(cm_domain, username)
     paths = uploaded_files(CM_PB_PREFIX.format(username=username))
 
     for path in paths:
