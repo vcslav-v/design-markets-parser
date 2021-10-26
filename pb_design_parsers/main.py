@@ -34,9 +34,8 @@ def parse_creative_market_csv():
 
 
 @logger.catch
-@sched.scheduled_job('interval', minutes=1)
+@sched.scheduled_job('cron', hour=5, minute=24)
 def test_job():
-    
     logger.info(f'TEST {datetime.utcnow()}')
 
 
