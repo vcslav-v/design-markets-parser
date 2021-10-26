@@ -1,4 +1,3 @@
-from datetime import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from loguru import logger
@@ -20,23 +19,17 @@ def send_tg_alarm(message):
 
 
 @logger.catch
-@sched.scheduled_job('cron', hour=1)
+@sched.scheduled_job('cron', hour=6)
 def parse_creative_market():
     logger.info('Start parsing')
     creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
 
 
 @logger.catch
-@sched.scheduled_job('cron', hour=2)
+@sched.scheduled_job('cron', hour=6, minute=30)
 def parse_creative_market_csv():
     logger.info('Start data mining')
     creative.add_data(os.environ.get('CM_USER'))
-
-
-@logger.catch
-@sched.scheduled_job('cron', hour=5, minute=24)
-def test_job():
-    logger.info(f'TEST {datetime.utcnow()}')
 
 
 if __name__ == "__main__":
