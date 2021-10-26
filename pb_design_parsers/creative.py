@@ -69,7 +69,7 @@ def push_data_csv(driver, username):
 
 def parse(username, password):
     driver = browser.get()
-    browser.set_cookies('https://creativemarket.com', username)
+    browser.set_cookies(driver, 'https://creativemarket.com', username)
     driver.get('https://creativemarket.com/sign-in')
     try:
         WebDriverWait(driver, timeout=10).until(

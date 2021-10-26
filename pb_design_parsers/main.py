@@ -19,7 +19,7 @@ def send_tg_alarm(message):
 
 
 @logger.catch
-@sched.scheduled_job('cron', hour=6, minute=5)
+@sched.scheduled_job('cron', hour=6, minute=10)
 def parse_creative_market():
     logger.info('Start parsing')
     creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
