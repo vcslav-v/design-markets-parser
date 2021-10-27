@@ -157,6 +157,6 @@ def get_last_date_in_db(domain, username):
             account=account,
         ).order_by(models.Sale.date.desc()).first()
         if sale:
-            return sale.date
+            return sale.date.date()
         else:
             return datetime.fromtimestamp(0).date()
