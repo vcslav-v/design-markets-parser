@@ -18,7 +18,7 @@ def send_tg_alarm(message):
             ))
 
 
-@sched.scheduled_job('cron', hour=1)
+@sched.scheduled_job('cron', hour=12, minute=52)
 @logger.catch
 def parse_creative_market():
     logger.info('Start parsing')

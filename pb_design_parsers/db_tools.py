@@ -126,9 +126,6 @@ def add_sale(
             )
             session.add(db_product)
 
-        
-            
-
         sale = models.Sale(
             date=date,
             price_cents=price,
