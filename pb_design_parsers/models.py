@@ -1,5 +1,5 @@
 """DataBase models."""
-from sqlalchemy import Column, ForeignKey, Integer, Text, LargeBinary, Date
+from sqlalchemy import Column, ForeignKey, Integer, Text, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -76,7 +76,7 @@ class Cookie(Base):
 
     id = Column(Integer, primary_key=True)
 
-    data = Column(LargeBinary)
+    data = Column(Text)
 
     account_id = Column(Integer, ForeignKey('accounts.id'))
     account = relationship('Account', back_populates='cookies')

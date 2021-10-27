@@ -29,7 +29,7 @@ def get_cookies(domain: str, username: str) -> list[dict]:
         ).all()
         for cookie in cookies:
             domain_cookies.append(
-                json.loads(fernet.decrypt(cookie.data).decode())
+                json.loads(fernet.decrypt(cookie.data.encode('UTF-8')).decode('UTF-8'))
             )
     return domain_cookies
 
@@ -57,7 +57,7 @@ def set_cookies(domain: str, username: str, cookies: list):
         for cookie in cookies:
             session.add(models.Cookie(
                 account=account,
-                data=fernet.encrypt(json.dumps(cookie).encode('UTF-8')),
+                data=fernet.encrypt(json.dumps(cookie).encode('UTF-8')).decode('utf-8'),
             ))
         session.commit()
 
