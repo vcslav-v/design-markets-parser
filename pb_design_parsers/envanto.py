@@ -35,7 +35,12 @@ def get_data(driver, check_date):
         WebDriverWait(driver, timeout=20).until(
             lambda d: d.find_element(By.XPATH, '//h3[contains(., "Earnings By Items")]')
         )
-        table = driver.find_elements(By.XPATH, '//tbody[@class="reactable-data"]/tr')
+        try:
+            table = WebDriverWait(driver, timeout=20).until(
+                lambda d: d.find_element(By.XPATH, '//tbody[@class="reactable-data"]/tr')
+            )
+        except TimeoutError:
+            break
         for row in table:
             product_name = row.find_element(By.XPATH, 'td[@label="Item"]').text
             product_earning = row.find_element(By.XPATH, 'td[@label="Earnings (USD)"]').text
