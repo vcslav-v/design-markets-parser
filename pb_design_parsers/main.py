@@ -3,7 +3,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from loguru import logger
 import requests
 import os
-from pb_design_parsers import creative
+from pb_design_parsers import creative, envanto
 
 
 sched = BlockingScheduler()
@@ -28,4 +28,5 @@ def parse_creative_market():
 
 if __name__ == "__main__":
     logger.add(sink=send_tg_alarm)
+    envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
     sched.start()

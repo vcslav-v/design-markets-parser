@@ -84,13 +84,13 @@ def delete_cookies(domain: str, username: str):
 
 
 def add_sale(
-    date: datetime,
-    price: int,
-    earnings: int,
-    product: str,
-    reffered: bool,
-    market_place_domain: str,
-    username: str
+    date: datetime = None,
+    price: int = None,
+    earnings: int = None,
+    product: str = None,
+    reffered: bool = None,
+    market_place_domain: str = None,
+    username: str = None
 ):
     with db.SessionLocal() as session:
         market_place = session.query(models.MarketPlace).filter_by(
