@@ -39,7 +39,7 @@ def get_data(driver, check_date):
             table = WebDriverWait(driver, timeout=20).until(
                 lambda d: d.find_element(By.XPATH, '//tbody[@class="reactable-data"]/tr')
             )
-        except TimeoutError:
+        except TimeoutException:
             break
         for row in table:
             product_name = row.find_element(By.XPATH, 'td[@label="Item"]').text
@@ -52,7 +52,7 @@ def get_data(driver, check_date):
                 lambda d: d.find_element(By.XPATH, '//a[@class="reactable-next-page"]')
             )
             next_button.click()
-        except TimeoutError:
+        except TimeoutException:
             break
 
     return result
