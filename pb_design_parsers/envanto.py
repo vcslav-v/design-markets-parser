@@ -37,7 +37,7 @@ def get_data(driver, check_date):
         )
         try:
             table = WebDriverWait(driver, timeout=20).until(
-                lambda d: d.find_element(By.XPATH, '//tbody[@class="reactable-data"]/tr')
+                lambda d: d.find_elements(By.XPATH, '//tbody[@class="reactable-data"]/tr')
             )
         except TimeoutException:
             break
