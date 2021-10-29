@@ -72,8 +72,18 @@ def push_to_db(sale_data, username, domain):
 
 
 def parse(username, password):
-    driver = browser.get()
     domain = 'elements-contributors.envato.com'
+    iso_start_date = os.environ.get('ENVANTO_START_DATE') or '2000-01-01'
+    last_db_sale = db_tools.get_last_date_in_db(domain, username)
+    start_date = datetime.fromisoformat(iso_start_date).date()
+    start_date = start_date if start_date > last_db_sale else last_db_sale + timedelta(days=1)
+    _, last_month_day = calendar.monthrange(start_date.year, start_date.month)
+    check_date = start_date + timedelta(days=last_month_day-1)
+    sale_data = []
+    if check_date >= datetime.utcnow().date():
+        return
+
+    driver = browser.get()
     browser.set_cookies(driver, 'https://elements-contributors.envato.com', username)
     driver.get('https://elements-contributors.envato.com/sign-in')
     try:
@@ -83,13 +93,6 @@ def parse(username, password):
     except TimeoutException:
         login(driver, username, password)
 
-    iso_start_date = os.environ.get('ENVANTO_START_DATE') or '2000-01-01'
-    last_db_sale = db_tools.get_last_date_in_db(domain, username)
-    start_date = datetime.fromisoformat(iso_start_date).date()
-    start_date = start_date if start_date > last_db_sale else last_db_sale + timedelta(days=1)
-    _, last_month_day = calendar.monthrange(start_date.year, start_date.month)
-    check_date = start_date + timedelta(days=last_month_day-1)
-    sale_data = []
     while check_date < datetime.utcnow().date():
         sale_data.extend(get_data(driver, check_date))
 

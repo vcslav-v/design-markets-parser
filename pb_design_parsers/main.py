@@ -26,7 +26,7 @@ def parse_creative_market():
     creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
 
 
-@sched.scheduled_job('cron', hour=7, minute=20)
+@sched.scheduled_job('cron', hour=2)
 @logger.catch
 def parse_elements():
     logger.info('Start parsing elements')
