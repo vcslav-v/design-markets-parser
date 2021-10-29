@@ -44,15 +44,17 @@ def set_cookies(domain: str, username: str, cookies: list):
         market_place = session.query(models.MarketPlace).filter_by(domain=domain).first()
         if not market_place:
             market_place = models.MarketPlace(domain=domain)
-            session.add(market_place)
-
-        account = session.query(models.Account).filter_by(
-            username=username,
-            market_place=market_place,
-        ).first()
-        if not account:
             account = models.Account(username=username, market_place=market_place)
             session.add(account)
+            session.add(market_place)
+        else:
+            account = session.query(models.Account).filter_by(
+                username=username,
+                market_place=market_place,
+            ).first()
+            if not account:
+                account = models.Account(username=username, market_place=market_place)
+                session.add(account)
 
         for cookie in cookies:
             session.add(models.Cookie(
