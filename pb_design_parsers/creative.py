@@ -134,7 +134,7 @@ def refresh_products(username, password):
                     )
                 )
         for product_row in product_rows:
-            product_link_elem = product_row.find_element(By.XPATH, '/td[@class="product"]/a')
+            product_link_elem = product_row.find_element(By.XPATH, '//td[@class="product"]/a')
             product_links.append(product_link_elem.get_attribute('href'))
         try:
             next_button = WebDriverWait(driver, timeout=10).until(
@@ -196,7 +196,7 @@ def parse_product_info(driver, product_link):
         name_license = license_button_elem.get_attribute('data-tracking')
         price_elem = license_button_elem.find_element(
             By.XPATH,
-            '/span[contains(@class, "license-price")]',
+            '//span[contains(@class, "license-price")]',
         )
         price_license = price_elem.text
         price_license = int(float(price_license[:1]) * 100)
