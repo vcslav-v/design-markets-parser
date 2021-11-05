@@ -124,6 +124,15 @@ def refresh_products(username, password):
     except TimeoutException:
         login(driver, username, password)
     driver.get('https://creativemarket.com/account/dashboard/products')
+    try:
+        dialog_dismiss_btn = WebDriverWait(driver, timeout=20).until(
+            lambda d: d.find_element(
+                By.XPATH, '//dialog//a[contains(@class, "dismiss")]'
+            )
+        )
+        dialog_dismiss_btn.click()
+    except TimeoutError:
+        pass
     product_links = []
     is_next = True
     while is_next:
