@@ -4,7 +4,6 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
-from loguru import logger
 
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
