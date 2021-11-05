@@ -145,16 +145,16 @@ def refresh_products(username, password):
         for product_row in product_rows:
             product_link_elem = product_row.find_element(By.XPATH, '//td[@class="product"]/a')
             product_links.append(product_link_elem.get_attribute('href'))
-        try:
-            next_button = WebDriverWait(driver, timeout=10).until(
-                        lambda d: d.find_element(
-                            By.XPATH,
-                            '//nav[@class="pager"]/button[contains(.,"Next")]',
-                        )
-                    )
-            next_button.click()
-        except TimeoutException:
+        next_button = WebDriverWait(driver, timeout=10).until(
+            lambda d: d.find_element(
+                By.XPATH,
+                '//nav[@class="pager"]/button[contains(.,"Next")]',
+            )
+        )
+        if next_button.get_attribute('disabled') == 'disabled':
             is_next = False
+        else:
+            next_button.click()
 
     product_items = []
     for product_link in product_links:
