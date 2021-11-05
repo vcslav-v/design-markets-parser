@@ -4,6 +4,7 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
+from loguru import logger
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -151,7 +152,9 @@ def refresh_products(username, password):
                 '//nav[@class="pager"]/button[contains(.,"Next")]',
             )
         )
-        if next_button.get_attribute('disabled') == 'disabled':
+        attr_dis = next_button.get_attribute('disabled')
+        logger.debug(f'button disabled - {attr_dis}')
+        if next_button.get_attribute('disabled'):
             is_next = False
         else:
             next_button.click()
