@@ -92,7 +92,7 @@ def add_sale(
     product: str = None,
     reffered: bool = None,
     market_place_domain: str = None,
-    username: str = None
+    username: str = None,
 ):
     with db.SessionLocal() as session:
         market_place = session.query(models.MarketPlace).filter_by(
@@ -162,3 +162,61 @@ def get_last_date_in_db(domain, username):
             return sale.date.date()
         else:
             return datetime.fromtimestamp(0).date()
+
+
+def add_product_item(
+    market_domain: str,
+    account_name: str,
+    name: str,
+    url: str,
+    categories: list,
+    licenses: dict,
+):
+    with db.SessionLocal() as session:
+        db_market = session.query(models.MarketPlace).filter_by(domain=market_domain).first()
+        if not db_market:
+            db_market = models.MarketPlace(domain=market_domain)
+            session.add(db_market)
+            session.commit()
+
+        db_account = session.query(models.Account).filter_by(
+            username=account_name,
+            market_place=db_market,
+        ).first()
+        if not db_account:
+            db_account = models.Account(
+                username=account_name,
+                market_place=db_market,
+            )
+            session.add(db_account)
+            session.commit()
+
+        db_product = session.query(models.Product).filter_by(name=name).first()
+        if not db_product:
+            db_product = models.Product(name=name)
+            session.add(db_product)
+            session.commit()
+
+        db_product_item = session.query(models.ProductItem).filter_by(
+            product=db_product,
+            account=db_account,
+        ).first()
+        if not db_product_item:
+            db_product_item = models.ProductItem(
+                product=db_product,
+                account=db_account,
+            )
+
+        db_product_item.url = url
+        db_product_item.category = '/'.join(categories)
+
+        for name_license, price in licenses.items():
+            if 'personal' in name_license.lower():
+                db_product_item.personal_price_cents = price
+            elif 'commercial' in name_license.lower() and 'extended' not in name_license.lower():
+                db_product_item.commercial_price_cents = price
+            elif 'extended' in name_license.lower():
+                db_product_item.extended_price_cents = price
+
+        session.add(db_product_item)
+        session.commit()

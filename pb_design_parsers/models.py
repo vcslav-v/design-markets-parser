@@ -17,6 +17,29 @@ class Product(Base):
 
     sales = relationship('Sale', back_populates='product')
 
+    items = relationship('ProductItem', back_populates='product')
+
+
+class ProductItem(Base):
+    """Product item in market palce."""
+
+    __tablename__ = 'product_item'
+
+    id = Column(Integer, primary_key=True)
+
+    url = Column(Text, unique=True)
+
+    personal_price_cents = Column(Integer)
+    commercial_price_cents = Column(Integer)
+    extended_price_cents = Column(Integer)
+    category = Column(Text)
+
+    product_id = Column(Integer, ForeignKey('products.id'))
+    product = relationship('Product', back_populates='items')
+
+    account_id = Column(Integer, ForeignKey('accounts.id'))
+    account = relationship('Account', back_populates='product_items')
+
 
 class Sale(Base):
     """Sale."""
@@ -67,6 +90,8 @@ class Account(Base):
     cookies = relationship('Cookie', back_populates='account')
 
     sales = relationship('Sale', back_populates='account')
+
+    product_items = relationship('ProductItem', back_populates='account')
 
 
 class Cookie(Base):
