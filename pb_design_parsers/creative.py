@@ -4,8 +4,9 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
+from loguru import logger
 
-from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -144,6 +145,7 @@ def refresh_products(username, password):
                 )
         for product_row in product_rows:
             product_link_elem = product_row.find_element(By.XPATH, '//td[@class="product"]/a')
+            logger.debug(product_link_elem.get_attribute('href'))
             product_links.append(product_link_elem.get_attribute('href'))
         next_button = WebDriverWait(driver, timeout=10).until(
             lambda d: d.find_element(
@@ -151,10 +153,11 @@ def refresh_products(username, password):
                 '//nav[@class="pager"]/button[contains(.,"Next")]',
             )
         )
-        try:
-            next_button.click()
-        except StaleElementReferenceException:
+
+        if next_button.get_attribute('disabled'):
             is_next = False
+        else:
+            next_button.click()
 
     product_items = []
     for product_link in product_links:
