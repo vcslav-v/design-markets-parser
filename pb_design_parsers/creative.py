@@ -6,7 +6,7 @@ import csv
 from datetime import datetime
 from loguru import logger
 
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -152,12 +152,10 @@ def refresh_products(username, password):
                 '//nav[@class="pager"]/button[contains(.,"Next")]',
             )
         )
-        attr_dis = next_button.get_attribute('disabled')
-        logger.debug(f'button disabled - {attr_dis}')
-        if next_button.get_attribute('disabled'):
-            is_next = False
-        else:
+        try:
             next_button.click()
+        except StaleElementReferenceException:
+            is_next = False
 
     product_items = []
     for product_link in product_links:
