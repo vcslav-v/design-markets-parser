@@ -4,7 +4,6 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
-from loguru import logger
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -137,22 +136,21 @@ def refresh_products(username, password):
     product_links = []
     is_next = True
     while is_next:
-        product_rows = WebDriverWait(driver, timeout=10).until(
+        sleep(5)
+        product_elems = WebDriverWait(driver, timeout=10).until(
                     lambda d: d.find_elements(
                         By.XPATH,
-                        '//section[@class="products box"]//tbody//tr',
+                        '//section[@class="products box"]//tbody//tr/td[@class="product"]/a',
                     )
                 )
-        for product_row in product_rows:
-            product_link_elem = product_row.find_element(By.XPATH, '//td[@class="product"]/a')
-            logger.debug(product_link_elem.get_attribute('href'))
-            product_links.append(product_link_elem.get_attribute('href'))
         next_button = WebDriverWait(driver, timeout=10).until(
             lambda d: d.find_element(
                 By.XPATH,
                 '//nav[@class="pager"]/button[contains(.,"Next")]',
             )
         )
+        for product_elem in product_elems:
+            product_links.append(product_elem.get_attribute('href'))
 
         if next_button.get_attribute('disabled'):
             is_next = False
@@ -177,7 +175,7 @@ def parse_product_info(driver, product_link):
     product_name = name_elem.text
 
     breadcrumb_elems = WebDriverWait(driver, timeout=10).until(
-        lambda d: d.find_element(
+        lambda d: d.find_elements(
             By.XPATH,
             '//div[contains(@class, "header-breadcrumbs")]/a',
         )
@@ -190,14 +188,14 @@ def parse_product_info(driver, product_link):
     modal_link_elem = WebDriverWait(driver, timeout=10).until(
         lambda d: d.find_element(
             By.XPATH,
-            '//div[@class="product-info"]/h1',
+            '//div[@class="license-section"]//a[contains(@class, "license-modal-link")]',
         )
     )
 
     modal_link_elem.click()
 
     license_button_elems = WebDriverWait(driver, timeout=10).until(
-        lambda d: d.find_element(
+        lambda d: d.find_elements(
             By.XPATH,
             '//div[@class="right"]/button[contains(@class, "license-button")]',
         )
@@ -206,12 +204,13 @@ def parse_product_info(driver, product_link):
     item_license_prices = {}
     for license_button_elem in license_button_elems:
         name_license = license_button_elem.get_attribute('data-tracking')
-        price_elem = license_button_elem.find_element(
+        license_button_path = f'//div[@class="right"]/button[@data-tracking="{name_license}"]'
+        price_elem = driver.find_element(
             By.XPATH,
-            '//span[contains(@class, "license-price")]',
+            f'{license_button_path}//span[contains(@class, "license-price")]',
         )
         price_license = price_elem.text
-        price_license = int(float(price_license[:1]) * 100)
+        price_license = int(float(price_license[1:]) * 100)
         item_license_prices[name_license] = price_license
 
     return (product_name, product_link, categories, item_license_prices)
