@@ -138,7 +138,7 @@ def refresh_products(username, password):
             product_links.append(product_link_elem.get_attribute('href'))
         try:
             next_button = WebDriverWait(driver, timeout=10).until(
-                        lambda d: d.find_elements(
+                        lambda d: d.find_element(
                             By.XPATH,
                             '//nav[@class="pager"]/button[contains(.,"Next")]',
                         )
