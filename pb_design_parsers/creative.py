@@ -4,6 +4,7 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
+from loguru import logger
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -157,7 +158,9 @@ def refresh_products(username, password):
             next_button.click()
 
     product_items = []
+    product_links.reverse()  # test
     for product_link in product_links:
+        logger.debug(product_links)
         product_items.append(parse_product_info(driver, product_link))
     driver.close()
     for product_item in product_items:
