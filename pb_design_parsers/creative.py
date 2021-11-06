@@ -4,7 +4,6 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
-from loguru import logger
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -160,8 +159,9 @@ def refresh_products(username, password):
 
     product_items = []
     for product_link in product_links:
-        logger.debug(product_link)
         product_items.append(parse_product_info(driver, product_link))
+        break
+    driver.close()
     for product_item in product_items:
         db_tools.add_product_item('creativemarket.com', *product_item)
 
@@ -186,6 +186,9 @@ def parse_product_info(driver, product_link):
     for breadcrumb_elem in breadcrumb_elems:
         category_name = breadcrumb_elem.text
         categories.append(category_name.lower())
+
+    status_elem = driver.find_element(By.XPATH, '//span[@class="status-label"]')
+    is_live = True if 'Live' in status_elem.text else False
 
     item_license_prices = {}
     try:
@@ -234,4 +237,4 @@ def parse_product_info(driver, product_link):
             price_license = int(float(price_license[1:]) * 100)
             item_license_prices[name_license] = price_license
 
-    return (product_name, product_link, categories, item_license_prices)
+    return (product_name, product_link, is_live, categories, item_license_prices)

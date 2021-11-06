@@ -1,5 +1,5 @@
 """DataBase models."""
-from sqlalchemy import Column, ForeignKey, Integer, Text, Date
+from sqlalchemy import Column, ForeignKey, Integer, Text, Date, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -34,6 +34,7 @@ class ProductItem(Base):
     extended_price_cents = Column(Integer)
     special_license = Column(Text)
     category = Column(Text)
+    is_live = Column(Boolean)
 
     product_id = Column(Integer, ForeignKey('products.id'))
     product = relationship('Product', back_populates='items')
