@@ -41,12 +41,6 @@ def parse_cm_items():
     creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
 
 
-@sched.scheduled_job('cron', hour=15, minute=33)
-@logger.catch
-def parse_cm_items_test():
-    creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
-
-
 if __name__ == "__main__":
     logger.add(sink=send_tg_alarm)
     sched.start()
