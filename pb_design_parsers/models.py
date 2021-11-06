@@ -32,6 +32,7 @@ class ProductItem(Base):
     personal_price_cents = Column(Integer)
     commercial_price_cents = Column(Integer)
     extended_price_cents = Column(Integer)
+    special_license = Column(Text)
     category = Column(Text)
 
     product_id = Column(Integer, ForeignKey('products.id'))

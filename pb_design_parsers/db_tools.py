@@ -210,6 +210,7 @@ def add_product_item(
         db_product_item.url = url
         db_product_item.category = '/'.join(categories)
 
+        db_product_item.special_license = None
         for name_license, price in licenses.items():
             if 'personal' in name_license.lower():
                 db_product_item.personal_price_cents = price
@@ -217,6 +218,14 @@ def add_product_item(
                 db_product_item.commercial_price_cents = price
             elif 'extended' in name_license.lower():
                 db_product_item.extended_price_cents = price
+            else:
+                license_text = f'{name_license}-{price}'.lower()
+                if db_product_item.special_license:
+                    db_product_item.special_license = '/'.join(
+                        [db_product_item.special_license, license_text],
+                    )
+                else:
+                    db_product_item.special_license = license_text
 
         session.add(db_product_item)
         session.commit()
