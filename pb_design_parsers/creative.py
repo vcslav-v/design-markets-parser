@@ -4,6 +4,7 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
+from loguru import logger
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -159,6 +160,7 @@ def refresh_products(username, password):
 
     product_items = []
     for product_link in product_links:
+        logger.debug(product_link)
         product_items.append(parse_product_info(driver, product_link))
     for product_item in product_items:
         db_tools.add_product_item('creativemarket.com', *product_item)
