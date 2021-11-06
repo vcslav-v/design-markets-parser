@@ -132,7 +132,7 @@ def refresh_products(username, password):
             )
         )
         dialog_dismiss_btn.click()
-    except TimeoutError:
+    except TimeoutException:
         pass
     product_links = []
     is_next = True
