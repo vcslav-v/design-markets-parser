@@ -151,7 +151,7 @@ def refresh_products(username, password):
         )
         for product_elem in product_elems:
             product_links.append(product_elem.get_attribute('href'))
-
+        break  # test
         if next_button.get_attribute('disabled'):
             is_next = False
         else:
@@ -160,10 +160,10 @@ def refresh_products(username, password):
     product_items = []
     for product_link in product_links:
         product_items.append(parse_product_info(driver, product_link))
-        break
+        break  # test
     driver.close()
     for product_item in product_items:
-        db_tools.add_product_item('creativemarket.com', *product_item)
+        db_tools.add_product_item('creativemarket.com', username, *product_item)
 
 
 def parse_product_info(driver, product_link):
