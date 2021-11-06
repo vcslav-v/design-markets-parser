@@ -169,6 +169,7 @@ def add_product_item(
     account_name: str,
     name: str,
     url: str,
+    is_live: bool,
     categories: list,
     licenses: dict,
 ):
@@ -209,6 +210,7 @@ def add_product_item(
 
         db_product_item.url = url
         db_product_item.category = '/'.join(categories)
+        db_product_item.is_live = is_live
 
         db_product_item.special_license = None
         for name_license, price in licenses.items():
