@@ -114,7 +114,7 @@ def add_data(username):
                     db_tools.add_sale(date, price, earnings, product, reffered, cm_domain, username)
 
 
-def refresh_products(username, password):
+def get_logined_driver(username, password):
     driver = browser.get()
     browser.set_cookies(driver, 'https://creativemarket.com', username)
     driver.get('https://creativemarket.com/sign-in')
@@ -124,6 +124,11 @@ def refresh_products(username, password):
             )
     except TimeoutException:
         login(driver, username, password)
+    return driver
+
+
+def refresh_products(username, password):
+    driver = get_logined_driver(username, password)
     driver.get('https://creativemarket.com/account/dashboard/products')
     try:
         dialog_dismiss_btn = WebDriverWait(driver, timeout=20).until(
@@ -158,11 +163,17 @@ def refresh_products(username, password):
             next_button.click()
 
     product_items = []
-    product_links.reverse()  # test
-    for product_link in product_links:
-        logger.debug(product_links)
+    for i, product_link in enumerate(product_links):
+        logger.debug(product_link)
+        if i % 50 == 0:
+            browser.save_cookies(driver, 'https://creativemarket.com', username)
+            driver.close()
+            driver = get_logined_driver(username, password)
         product_items.append(parse_product_info(driver, product_link))
+
+    browser.save_cookies(driver, 'https://creativemarket.com', username)
     driver.close()
+
     for product_item in product_items:
         db_tools.add_product_item('creativemarket.com', username, *product_item)
 
