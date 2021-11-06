@@ -164,7 +164,6 @@ def refresh_products(username, password):
 
     product_items = []
     for i, product_link in enumerate(product_links):
-        logger.debug(product_link)
         if i % 50 == 0:
             browser.save_cookies(driver, 'https://creativemarket.com', username)
             driver.close()
@@ -175,6 +174,7 @@ def refresh_products(username, password):
     driver.close()
 
     for product_item in product_items:
+        logger.debug(product_item)
         db_tools.add_product_item('creativemarket.com', username, *product_item)
 
 

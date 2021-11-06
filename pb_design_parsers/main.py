@@ -33,11 +33,17 @@ def parse_elements():
     envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
 
 
-@sched.scheduled_job('cron', hour=13, minute=53)
+@sched.scheduled_job('cron', day_of_week=0, hour=3)
 @logger.catch
 def parse_cm_items():
     logger.info('Start parsing creative items')
     creative.refresh_products(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
+    creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
+
+
+@sched.scheduled_job('cron', hour=15, minute=25)
+@logger.catch
+def parse_cm_items_test():
     creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
 
 
