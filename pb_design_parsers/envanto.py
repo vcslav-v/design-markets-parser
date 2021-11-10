@@ -2,6 +2,7 @@ import calendar
 import os
 from datetime import datetime, timedelta
 from time import sleep
+from urllib.parse import urljoin
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -83,15 +84,7 @@ def parse(username, password):
     if check_date >= datetime.utcnow().date():
         return
 
-    driver = browser.get()
-    browser.set_cookies(driver, 'https://elements-contributors.envato.com', username)
-    driver.get('https://elements-contributors.envato.com/sign-in')
-    try:
-        WebDriverWait(driver, timeout=10).until(
-                lambda d: d.find_element(By.ID, 'IconUserCircleTitle')
-            )
-    except TimeoutException:
-        login(driver, username, password)
+    driver = get_logined_driver(username, password)
 
     while check_date < datetime.utcnow().date():
         sale_data.extend(get_data(driver, check_date))
@@ -102,3 +95,79 @@ def parse(username, password):
     browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
 
     push_to_db(sale_data, username, domain)
+
+
+def refresh_products(username, password):
+    driver = get_logined_driver(username, password)
+    driver.get(f'https://elements.envato.com/user/{username}')
+    category_elems = WebDriverWait(driver, timeout=20).until(
+        lambda d: d.find_elements(By.XPATH, '//div[@data-test-selector="item-type-tabs"]//a')
+    )
+    category_links = []
+    for category_elem in category_elems:
+        category_links.append(
+            urljoin('https://elements.envato.com/', category_elem.get_attribute('href'))
+        )
+
+    product_links = []
+    for category_link in category_links:
+        driver.get(category_link)
+        is_content = True
+        page_counter = 1
+        while is_content:
+            driver.get(f'{category_link}?page={page_counter}')
+
+            item_elems = WebDriverWait(driver, timeout=20).until(
+                lambda d: d.find_elements(By.XPATH, '//div[@data-test-selector="item-card"]/a')
+            )
+            if len(item_elems) == 0:
+                is_content = False
+            for item_elem in item_elems:
+                item_url = item_elem.get_attribute('href')
+                item_elem = urljoin('https://elements.envato.com/', item_url)
+                product_links.append(item_elem)
+            page_counter += 1
+
+    product_items = []
+    for i, product_link in enumerate(product_links):
+        if i % 50 == 0:
+            browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
+            driver.close()
+            driver = get_logined_driver(username, password)
+        product_items.append(parse_product_info(driver, product_link))
+
+    for product_item in product_items:
+        db_tools.add_product_item('elements-contributors.envato.com', username, *product_item)
+
+
+def get_logined_driver(username, password):
+    driver = browser.get()
+    browser.set_cookies(driver, 'https://elements-contributors.envato.com', username)
+    driver.get('https://elements-contributors.envato.com/sign-in')
+    try:
+        WebDriverWait(driver, timeout=10).until(
+                lambda d: d.find_element(By.ID, 'IconUserCircleTitle')
+            )
+    except TimeoutException:
+        login(driver, username, password)
+    return driver
+
+
+def parse_product_info(driver, product_link):
+    driver.get(product_link)
+    is_live = True
+    item_license_prices = {}
+
+    product_name_elem = WebDriverWait(driver, timeout=20).until(
+        lambda d: d.find_element(By.XPATH, '//h1')
+    )
+    product_name = product_name_elem.text
+
+    categories = []
+    categories_elems = WebDriverWait(driver, timeout=20).until(
+        lambda d: d.find_elements(By.XPATH, '//a[@href="/all-items"]/..//a')
+    )
+    for categories_elem in categories_elems[1:]:
+        categories.append(categories_elem.text)
+
+    return (product_name, product_link, is_live, categories, item_license_prices)
