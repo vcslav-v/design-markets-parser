@@ -5,7 +5,7 @@ from time import sleep
 from urllib.parse import urljoin
 from loguru import logger
 
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -134,11 +134,11 @@ def refresh_products(username, password):
     product_items = []
     for i, product_link in enumerate(product_links):
         logger.debug(product_link)
-        if i % 50 == 0:
-            browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
-            driver.close()
+        try:
+            product_items.append(parse_product_info(driver, product_link))
+        except WebDriverException:
             driver = get_logined_driver(username, password)
-        product_items.append(parse_product_info(driver, product_link))
+            product_items.append(parse_product_info(driver, product_link))
 
     for product_item in product_items:
         logger.debug(product_item)
@@ -174,7 +174,5 @@ def parse_product_info(driver, product_link):
     )
     for categories_elem in categories_elems[1:]:
         categories.append(categories_elem.text)
-
-    sleep(2)
 
     return (product_name, product_link, is_live, categories, item_license_prices)
