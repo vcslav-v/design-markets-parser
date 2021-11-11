@@ -41,7 +41,7 @@ def parse_cm_items():
     creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
 
 
-@sched.scheduled_job('cron', hour=12, minute=24)
+@sched.scheduled_job('cron', hour=15, minute=1)
 @logger.catch
 def parse_elements_items():
     logger.info('Start parsing elements items')
