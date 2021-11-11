@@ -117,11 +117,13 @@ def refresh_products(username, password):
         while is_content:
             driver.get(f'{category_link}?page={page_counter}')
 
-            item_elems = WebDriverWait(driver, timeout=20).until(
-                lambda d: d.find_elements(By.XPATH, '//div[@data-test-selector="item-card"]/a')
-            )
-            if len(item_elems) == 0:
+            try:
+                item_elems = WebDriverWait(driver, timeout=20).until(
+                    lambda d: d.find_elements(By.XPATH, '//div[@data-test-selector="item-card"]/a')
+                )
+            except TimeoutException:
                 is_content = False
+                item_elems = []
             for item_elem in item_elems:
                 item_url = item_elem.get_attribute('href')
                 item_elem = urljoin('https://elements.envato.com/', item_url)
