@@ -133,6 +133,7 @@ def refresh_products(username, password):
 
     product_items = []
     for i, product_link in enumerate(product_links):
+        logger.debug(product_link)
         if i % 50 == 0:
             browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
             driver.close()
