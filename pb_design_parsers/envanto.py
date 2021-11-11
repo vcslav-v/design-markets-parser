@@ -130,19 +130,20 @@ def refresh_products(username, password):
                 item_elem = urljoin('https://elements.envato.com/', item_url)
                 product_links.append(item_elem)
             page_counter += 1
-            break  # test
 
     product_items = []
     for i, product_link in enumerate(product_links):
-        # if i % 50 == 0:
-        #     browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
-        #     driver.close()
-        #     driver = get_logined_driver(username, password)
+        if i % 50 == 0:
+            browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
+            driver.close()
+            driver = get_logined_driver(username, password)
         product_items.append(parse_product_info(driver, product_link))
-        break  # test
+
+    browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
+    driver.close()
 
     for product_item in product_items:
-        logger.debug(product_item)
+        logger.debug()
         db_tools.add_product_item('elements-contributors.envato.com', username, *product_item)
 
 
