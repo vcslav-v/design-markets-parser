@@ -175,4 +175,6 @@ def parse_product_info(driver, product_link):
     for categories_elem in categories_elems[1:]:
         categories.append(categories_elem.text)
 
+    sleep(2)
+
     return (product_name, product_link, is_live, categories, item_license_prices)
