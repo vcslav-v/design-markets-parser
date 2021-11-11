@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 from time import sleep
 from urllib.parse import urljoin
+from loguru import logger
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -118,7 +119,7 @@ def refresh_products(username, password):
             driver.get(f'{category_link}?page={page_counter}')
 
             try:
-                item_elems = WebDriverWait(driver, timeout=20).until(
+                item_elems = WebDriverWait(driver, timeout=10).until(
                     lambda d: d.find_elements(By.XPATH, '//div[@data-test-selector="item-card"]/a')
                 )
             except TimeoutException:
@@ -129,16 +130,19 @@ def refresh_products(username, password):
                 item_elem = urljoin('https://elements.envato.com/', item_url)
                 product_links.append(item_elem)
             page_counter += 1
+            break  # test
 
     product_items = []
     for i, product_link in enumerate(product_links):
-        if i % 50 == 0:
-            browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
-            driver.close()
-            driver = get_logined_driver(username, password)
+        # if i % 50 == 0:
+        #     browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
+        #     driver.close()
+        #     driver = get_logined_driver(username, password)
         product_items.append(parse_product_info(driver, product_link))
+        break  # test
 
     for product_item in product_items:
+        logger.debug(product_item)
         db_tools.add_product_item('elements-contributors.envato.com', username, *product_item)
 
 
