@@ -139,11 +139,8 @@ def refresh_products(username, password):
             driver = get_logined_driver(username, password)
         product_items.append(parse_product_info(driver, product_link))
 
-    browser.save_cookies(driver, 'https://elements-contributors.envato.com', username)
-    driver.close()
-
     for product_item in product_items:
-        logger.debug()
+        logger.debug(product_item)
         db_tools.add_product_item('elements-contributors.envato.com', username, *product_item)
 
 
