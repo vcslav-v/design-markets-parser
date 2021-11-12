@@ -3,7 +3,6 @@ import os
 from datetime import datetime, timedelta
 from time import sleep
 from urllib.parse import urljoin
-from loguru import logger
 
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
@@ -133,7 +132,6 @@ def refresh_products(username, password):
 
     product_items = []
     for i, product_link in enumerate(product_links):
-        logger.debug(product_link)
         try:
             product_items.append(parse_product_info(driver, product_link))
         except WebDriverException:
@@ -141,7 +139,6 @@ def refresh_products(username, password):
             product_items.append(parse_product_info(driver, product_link))
 
     for product_item in product_items:
-        logger.debug(product_item)
         db_tools.add_product_item('elements-contributors.envato.com', username, *product_item)
 
 
