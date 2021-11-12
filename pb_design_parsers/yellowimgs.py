@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 from time import sleep
 
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -37,6 +37,19 @@ def push_to_db(sale_data, username, domain):
         )
 
 
+def get_logined_driver(username, password):
+    driver = browser.get()
+    browser.set_cookies(driver, 'https://yellowimages.com', username)
+    driver.get('https://yellowimages.com/yin/sales-summary')
+    try:
+        WebDriverWait(driver, timeout=10).until(
+                lambda d: d.find_element(By.ID, 'stat_form')
+            )
+    except TimeoutException:
+        login(driver, username, password)
+    return driver
+
+
 def parse(username, password):
     domain = 'yellowimages.com'
     iso_start_date = os.environ.get('YELLOWIMGS_START_DATE') or '2000-01-01'
@@ -47,20 +60,17 @@ def parse(username, password):
     if check_date >= datetime.utcnow().date():
         return
 
-    driver = browser.get()
-    browser.set_cookies(driver, f'https://{domain}', username)
-    driver.get('https://yellowimages.com/yin/sales-summary')
-    try:
-        WebDriverWait(driver, timeout=10).until(
-                lambda d: d.find_element(By.ID, 'stat_form')
-            )
-    except TimeoutException:
-        login(driver, username, password)
-
+    driver = get_logined_driver(username, password)
     while check_date < datetime.utcnow().date():
-        driver.get(
-            f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
-        )
+        try:
+            driver.get(
+                f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
+            )
+        except WebDriverException:
+            driver = get_logined_driver(username, password)
+            driver.get(
+                f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
+            )
         table = WebDriverWait(driver, timeout=120).until(
             lambda d: d.find_element(By.ID, 'stat')
         )
