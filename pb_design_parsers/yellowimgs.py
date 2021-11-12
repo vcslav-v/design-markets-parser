@@ -64,12 +64,14 @@ def parse(username, password):
         table = WebDriverWait(driver, timeout=120).until(
             lambda d: d.find_element(By.ID, 'stat')
         )
-        rows = table.find_elements(By.XPATH, '//tbody/tr')
-        for row in rows:
-            cells = row.find_elements(By.XPATH, '//td')
-            product = cells[1].find_element(By.XPATH, '//a[@class="popdizz"]')
-            product_name = product.text
-            earnings = int(float(cells[4].text)*100)
+        product_name_elems = table.find_elements(By.XPATH, '//tbody/tr//a[@class="popdizz"]')
+        for product_name_elem in product_name_elems:
+            product_name = product_name_elem.text
+            product_row_elem = table.find_elements(
+                By.XPATH,
+                f'//tbody/tr//a[contains(.,"{product_name}")]/../../td',
+            )
+            earnings = int(float(product_row_elem[-1].text)*100)
             sale_data.append((check_date, product_name, earnings))
         check_date += timedelta(days=1)
 

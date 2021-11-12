@@ -3,7 +3,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from loguru import logger
 import requests
 import os
-from pb_design_parsers import creative, envanto
+from pb_design_parsers import creative, envanto, yellowimgs
 
 
 sched = BlockingScheduler()
@@ -46,6 +46,13 @@ def parse_cm_items():
 def parse_elements_items():
     logger.info('Start parsing elements items')
     envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
+
+
+@sched.scheduled_job('cron', hour=11, minute=33)
+@logger.catch
+def parse_yellowimgs():
+    logger.info('Start parsing yim')
+    yellowimgs.parse(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
 
 
 if __name__ == "__main__":
