@@ -71,9 +71,18 @@ def parse(username, password):
             driver.get(
                 f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
             )
-        table = WebDriverWait(driver, timeout=120).until(
-            lambda d: d.find_element(By.ID, 'stat')
-        )
+        try:
+            table = WebDriverWait(driver, timeout=120).until(
+                lambda d: d.find_element(By.ID, 'stat')
+            )
+        except TimeoutException:
+            driver = get_logined_driver(username, password)
+            driver.get(
+                f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
+            )
+            table = WebDriverWait(driver, timeout=120).until(
+                lambda d: d.find_element(By.ID, 'stat')
+            )
         product_name_elems = table.find_elements(By.XPATH, '//tbody/tr//a[@class="popdizz"]')
         for product_name_elem in product_name_elems:
             product_name = product_name_elem.text
