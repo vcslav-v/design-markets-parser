@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from time import sleep
+from loguru import logger
 
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
@@ -62,11 +63,13 @@ def parse(username, password):
 
     driver = get_logined_driver(username, password)
     while check_date < datetime.utcnow().date():
+        logger.debug(check_date)
         try:
             driver.get(
                 f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
             )
         except WebDriverException:
+            logger.error('browser crashed')
             driver = get_logined_driver(username, password)
             driver.get(
                 f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
@@ -76,6 +79,7 @@ def parse(username, password):
                 lambda d: d.find_element(By.ID, 'stat')
             )
         except TimeoutException:
+            logger.error(f'page https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}')
             driver = get_logined_driver(username, password)
             driver.get(
                 f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
