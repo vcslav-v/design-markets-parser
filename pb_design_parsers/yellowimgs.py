@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from time import sleep
 from loguru import logger
 
-from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -57,6 +57,7 @@ def parse(username, password):
     last_db_sale = db_tools.get_last_date_in_db(domain, username)
     start_date = datetime.fromisoformat(iso_start_date).date()
     check_date = start_date if start_date > last_db_sale else last_db_sale + timedelta(days=1)
+    month_number = check_date.month
     sale_data = []
     if check_date >= datetime.utcnow().date():
         return
@@ -64,29 +65,24 @@ def parse(username, password):
     driver = get_logined_driver(username, password)
     while check_date < datetime.utcnow().date():
         logger.debug(check_date)
-        try:
-            driver.get(
-                f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
-            )
-        except WebDriverException:
-            logger.error('browser crashed')
+        if month_number != check_date.month:
+            browser.save_cookies(driver, domain, username)
+            driver.close()
             driver = get_logined_driver(username, password)
-            driver.get(
-                f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
-            )
+            month_number = check_date.month
+        date_request = check_date.strftime("%B %d, %Y")
+        driver.get(
+            f'https://yellowimages.com/yin/daily-sales?date={date_request}'
+        )
         try:
             table = WebDriverWait(driver, timeout=120).until(
                 lambda d: d.find_element(By.ID, 'stat')
             )
         except TimeoutException:
-            logger.error(f'page https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}')
-            driver = get_logined_driver(username, password)
-            driver.get(
-                f'https://yellowimages.com/yin/daily-sales?date={check_date.strftime("%B %d, %Y")}'
+            logger.error(
+                f'page https://yellowimages.com/yin/daily-sales?date={date_request}'
             )
-            table = WebDriverWait(driver, timeout=120).until(
-                lambda d: d.find_element(By.ID, 'stat')
-            )
+            break
         product_name_elems = table.find_elements(By.XPATH, '//tbody/tr//a[@class="popdizz"]')
         for product_name_elem in product_name_elems:
             product_name = product_name_elem.text
@@ -94,10 +90,12 @@ def parse(username, password):
                 By.XPATH,
                 f'//tbody/tr//a[contains(.,"{product_name}")]/../../td',
             )
-            earnings = int(float(product_row_elem[-1].text)*100)
+            text_earning = product_row_elem[-1].text
+            earnings = int(float(text_earning)*100)
             sale_data.append((check_date, product_name, earnings))
         check_date += timedelta(days=1)
 
     browser.save_cookies(driver, domain, username)
+    driver.close()
 
     push_to_db(sale_data, username, domain)
