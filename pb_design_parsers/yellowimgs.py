@@ -139,9 +139,13 @@ def refresh_products(username, password):
             driver.get(
                 f'https://yellowimages.com/yin/products/{base_caregory}/draft?page={page_number}'
             )
-            product_link_elems = WebDriverWait(driver, timeout=120).until(
-                lambda d: d.find_elements(By.XPATH, '//li[contains(@class, "post_item")]//h3/a')
-            )
+            try:
+                product_link_elems = WebDriverWait(driver, timeout=120).until(
+                    lambda d: d.find_elements(By.XPATH, '//li[contains(@class, "post_item")]//h3/a')
+                )
+            except TimeoutException:
+                items_exist = False
+                product_link_elems = []
             for product_link_elem in product_link_elems:
                 draft_product_links.append(product_link_elem.get_attribute('href'))
             page_number += 1
