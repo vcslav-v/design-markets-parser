@@ -170,6 +170,7 @@ def parse_product_info(driver, product_link):
         lambda d: d.find_elements(By.XPATH, '//a[@href="/all-items"]/..//a')
     )
     for categories_elem in categories_elems[1:]:
-        categories.append(categories_elem.text)
+        category_name = categories_elem.text
+        categories.append(category_name.lower())
 
     return (product_name, product_link, is_live, categories, item_license_prices)
