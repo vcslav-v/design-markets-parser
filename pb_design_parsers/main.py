@@ -48,7 +48,7 @@ def parse_elements_items():
     envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
 
 
-@sched.scheduled_job('cron', hour=7, minute=54)
+@sched.scheduled_job('cron', hour=8, minute=13)
 @logger.catch
 def parse_yellowimgs():
     logger.info('Start parsing yim')

@@ -90,8 +90,16 @@ def parse(username, password):
                 By.XPATH,
                 f'//tbody/tr//a[contains(.,"{product_name}")]/../../td',
             )
-            text_earning = product_row_elem[-1].text
-            earnings = int(float(text_earning)*100)
+                
+            try:
+                earnings = int(float(text_earning)*100)
+            except ValueError:
+                product_row_elem = table.find_elements(
+                    By.XPATH,
+                    f'//tbody/tr//a[contains(.,"{product_name}")]/../../td/span',
+                )
+                text_earning = product_row_elem[-1].text
+                earnings = int(float(text_earning)*100)
             sale_data.append((check_date, product_name, earnings))
         check_date += timedelta(days=1)
 
