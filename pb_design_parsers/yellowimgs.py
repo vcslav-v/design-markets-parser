@@ -170,6 +170,7 @@ def refresh_products(username, password):
 
 
 def parse_product_info(driver, product_link, is_live):
+    logger.debug(product_link)
     driver.get(product_link)
     name_elem = WebDriverWait(driver, timeout=10).until(
         lambda d: d.find_element(
