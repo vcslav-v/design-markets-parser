@@ -123,7 +123,7 @@ def refresh_products(username, password):
         while items_exist:
             driver.get(f'https://yellowimages.com/yin/products/{base_caregory}?page={page_number}')
             try:
-                product_link_elems = WebDriverWait(driver, timeout=120).until(
+                product_link_elems = WebDriverWait(driver, timeout=10).until(
                     lambda d: d.find_elements(By.XPATH, '//li[contains(@class, "post_item")]//h3/a')
                 )
             except TimeoutException:
@@ -140,7 +140,7 @@ def refresh_products(username, password):
                 f'https://yellowimages.com/yin/products/{base_caregory}/draft?page={page_number}'
             )
             try:
-                product_link_elems = WebDriverWait(driver, timeout=120).until(
+                product_link_elems = WebDriverWait(driver, timeout=10).until(
                     lambda d: d.find_elements(By.XPATH, '//li[contains(@class, "post_item")]//h3/a')
                 )
             except TimeoutException:
@@ -152,14 +152,14 @@ def refresh_products(username, password):
 
     product_items = []
     for i, product_link in enumerate(product_links):
-        if i % 50 == 0:
+        if i % 25 == 0:
             browser.save_cookies(driver, 'https://yellowimages.com', username)
             driver.close()
             driver = get_logined_driver(username, password)
         product_items.append(parse_product_info(driver, product_link, True))
 
     for i, product_link in enumerate(draft_product_links):
-        if i % 50 == 0:
+        if i % 25 == 0:
             browser.save_cookies(driver, 'https://yellowimages.com', username)
             driver.close()
             driver = get_logined_driver(username, password)
