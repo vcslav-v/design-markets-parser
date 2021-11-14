@@ -152,14 +152,14 @@ def refresh_products(username, password):
 
     product_items = []
     for i, product_link in enumerate(product_links):
-        if i % 25 == 0:
+        if i % 10 == 0:
             browser.save_cookies(driver, 'https://yellowimages.com', username)
             driver.close()
             driver = get_logined_driver(username, password)
         product_items.append(parse_product_info(driver, product_link, True))
 
     for i, product_link in enumerate(draft_product_links):
-        if i % 25 == 0:
+        if i % 10 == 0:
             browser.save_cookies(driver, 'https://yellowimages.com', username)
             driver.close()
             driver = get_logined_driver(username, password)
