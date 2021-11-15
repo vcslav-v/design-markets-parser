@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from time import sleep
 from loguru import logger
 
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -152,18 +152,18 @@ def refresh_products(username, password):
 
     product_items = []
     for i, product_link in enumerate(product_links):
-        if i % 10 == 0:
-            browser.save_cookies(driver, 'https://yellowimages.com', username)
-            driver.close()
+        try:
+            product_items.append(parse_product_info(driver, product_link, True))
+        except WebDriverException:
             driver = get_logined_driver(username, password)
-        product_items.append(parse_product_info(driver, product_link, True))
+            product_items.append(parse_product_info(driver, product_link, True))
 
     for i, product_link in enumerate(draft_product_links):
-        if i % 10 == 0:
-            browser.save_cookies(driver, 'https://yellowimages.com', username)
-            driver.close()
+        try:
+            product_items.append(parse_product_info(driver, product_link, False))
+        except WebDriverException:
             driver = get_logined_driver(username, password)
-        product_items.append(parse_product_info(driver, product_link, False))
+            product_items.append(parse_product_info(driver, product_link, True))
 
     for product_item in product_items:
         db_tools.add_product_item('yellowimages.com', username, *product_item)
