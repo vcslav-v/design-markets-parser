@@ -1,7 +1,6 @@
 import os
 from datetime import datetime, timedelta
 from time import sleep
-from loguru import logger
 
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
@@ -64,7 +63,6 @@ def parse(username, password):
 
     driver = get_logined_driver(username, password)
     while check_date < datetime.utcnow().date():
-        logger.debug(check_date)
         if month_number != check_date.month:
             browser.save_cookies(driver, 'https://yellowimages.com', username)
             driver.close()
@@ -81,9 +79,6 @@ def parse(username, password):
                 lambda d: d.find_element(By.ID, 'stat')
             )
         except TimeoutException:
-            logger.error(
-                f'page https://yellowimages.com/yin/daily-sales?date={date_request}'
-            )
             break
         product_name_elems = table.find_elements(By.XPATH, '//tbody/tr//a[@class="popdizz"]')
         for product_name_elem in product_name_elems:
@@ -122,6 +117,7 @@ def refresh_products(username, password):
         page_number = 1
         while items_exist:
             driver.get(f'https://yellowimages.com/yin/products/{base_caregory}?page={page_number}')
+            sleep(2)
             try:
                 product_link_elems = WebDriverWait(driver, timeout=10).until(
                     lambda d: d.find_elements(By.XPATH, '//li[contains(@class, "post_item")]//h3/a')
@@ -139,6 +135,7 @@ def refresh_products(username, password):
             driver.get(
                 f'https://yellowimages.com/yin/products/{base_caregory}/draft?page={page_number}'
             )
+            sleep(2)
             try:
                 product_link_elems = WebDriverWait(driver, timeout=10).until(
                     lambda d: d.find_elements(By.XPATH, '//li[contains(@class, "post_item")]//h3/a')
@@ -151,7 +148,7 @@ def refresh_products(username, password):
             page_number += 1
 
     product_items = []
-    for i, product_link in enumerate(product_links):
+    for product_link in product_links:
         try:
             product_items.append(parse_product_info(driver, product_link, True))
         except WebDriverException:
@@ -161,7 +158,7 @@ def refresh_products(username, password):
             driver = get_logined_driver(username, password)
             product_items.append(parse_product_info(driver, product_link, True))
 
-    for i, product_link in enumerate(draft_product_links):
+    for product_link in draft_product_links:
         try:
             product_items.append(parse_product_info(driver, product_link, False))
         except WebDriverException:
@@ -178,7 +175,6 @@ def push_db(username, product_items):
 
 
 def parse_product_info(driver, product_link, is_live):
-    logger.debug(product_link)
     driver.get(product_link)
     name_elem = WebDriverWait(driver, timeout=10).until(
         lambda d: d.find_element(

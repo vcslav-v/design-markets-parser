@@ -1,10 +1,10 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
-
-from loguru import logger
-import requests
 import os
-from pb_design_parsers import creative, envanto, yellowimgs
 
+import requests
+from apscheduler.schedulers.blocking import BlockingScheduler
+from loguru import logger
+
+from pb_design_parsers import creative, designcuts, envanto, yellowimgs
 
 sched = BlockingScheduler()
 
@@ -35,13 +35,19 @@ def parse_items():
     creative.refresh_products(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
     creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
     envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
+    yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
 
 
-@sched.scheduled_job('cron', hour=12, minute=0)
+@sched.scheduled_job('cron', hour=18, minute=25)
 @logger.catch
 def parse_elements_items():
     logger.info('TEST')
-    yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
+    designcuts.parse(
+        os.environ.get('DC_USER'),
+        os.environ.get('BOT_MAIL_USER'),
+        os.environ.get('BOT_MAIL_PASSWORD'),
+        os.environ.get('DC_PARSE_FOLDER'),
+    )
 
 
 if __name__ == "__main__":
