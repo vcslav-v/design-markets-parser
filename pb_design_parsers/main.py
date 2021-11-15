@@ -37,7 +37,7 @@ def parse_items():
     envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
 
 
-@sched.scheduled_job('cron', hour=11, minute=6)
+@sched.scheduled_job('cron', hour=12, minute=0)
 @logger.catch
 def parse_elements_items():
     logger.info('TEST')
