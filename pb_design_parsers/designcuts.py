@@ -55,7 +55,6 @@ def parse(username, mail_username, mail_password, imap_setver, folder):
                 earnings=earnings_per_sale + remainder,
                 product=product_name,
                 reffered=False,
-                product=product_name,
                 market_place_domain='designcuts.com',
                 username=username,
             )
