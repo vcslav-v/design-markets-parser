@@ -157,6 +157,7 @@ def refresh_products(username, password):
         except WebDriverException:
             push_db(username, product_items)
             product_items = []
+            sleep(30)
             driver = get_logined_driver(username, password)
             product_items.append(parse_product_info(driver, product_link, True))
 
@@ -166,6 +167,7 @@ def refresh_products(username, password):
         except WebDriverException:
             push_db(username, product_items)
             product_items = []
+            sleep(30)
             driver = get_logined_driver(username, password)
             product_items.append(parse_product_info(driver, product_link, True))
 
