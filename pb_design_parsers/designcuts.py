@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 from pb_design_parsers import db_tools
 
 
-def parse(username, mail_username, mail_password, imap_setver, folder):
-    mail = imaplib.IMAP4_SSL(imap_setver)
+def parse(username, mail_username, mail_password, imap_server, folder):
+    mail = imaplib.IMAP4_SSL(imap_server)
     mail.login(mail_username, mail_password)
     mail.select(folder)
     _, data = mail.uid('search', None, 'ALL')

@@ -38,7 +38,7 @@ def parse_items():
     yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
 
 
-@sched.scheduled_job('cron', hour=18, minute=27)
+@sched.scheduled_job('cron', hour=18, minute=31)
 @logger.catch
 def parse_elements_items():
     logger.info('TEST')
@@ -46,6 +46,7 @@ def parse_elements_items():
         os.environ.get('DC_USER'),
         os.environ.get('BOT_MAIL_USER'),
         os.environ.get('BOT_MAIL_PASSWORD'),
+        os.environ.get('BOT_MAIL_IMAP'),
         os.environ.get('DC_PARSE_FOLDER'),
     )
 
