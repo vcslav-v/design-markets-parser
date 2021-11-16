@@ -4,6 +4,7 @@ import re
 from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
+from loguru import logger
 
 from pb_design_parsers import db_tools
 
@@ -12,20 +13,21 @@ def parse(username, mail_username, mail_password, imap_server, folder):
     mail = imaplib.IMAP4_SSL(imap_server)
     mail.login(mail_username, mail_password)
     mail.select(folder)
-    _, data = mail.uid('search', None, 'ALL')
+    _, uid_data = mail.uid('search', None, 'ALL')
 
-    mails = []
-    email_uids = data[0].split()
+    mails_bodies = []
+    email_uids = uid_data[0].split()
     for email_uid in email_uids:
-        _, data = mail.uid('fetch', email_uid, '(RFC822)')
-        mails.append(data[0][1])
-        mail.store(email_uid, '+FLAGS', '\\Deleted')
+        result, data = mail.uid('fetch', email_uid, '(RFC822)')
+        logger.debug(result)
+        mails_bodies.append(data[0][1])
+
     email_messages = []
-    for mail in mails:
-        email_messages.append(email.message_from_bytes(mail))
+    for mails_body in mails_bodies:
+        email_messages.append(email.message_from_bytes(mails_body))
 
-    for email_uid in email_uids:
-        mail.store(email_uid, '+FLAGS', '\\Deleted')
+    # for email_uid in email_uids:
+    #     mail.store(email_uid, '+FLAGS', '\\Deleted')
 
     soups = []
     for email_message in email_messages:
