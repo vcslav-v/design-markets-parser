@@ -92,16 +92,16 @@ def refresh_products(username):
 
         page_num += 1
 
-        product_items = []
-        for product_link in product_links:
-            try:
-                product_items.append(parse_product_info(driver, product_link))
-            except WebDriverException:
-                driver = browser.get()
-                product_items.append(parse_product_info(driver, product_link))
+    product_items = []
+    for product_link in product_links:
+        try:
+            product_items.append(parse_product_info(driver, product_link))
+        except WebDriverException:
+            driver = browser.get()
+            product_items.append(parse_product_info(driver, product_link))
 
-        for product_item in product_items:
-            db_tools.add_product_item('designcuts.com', username, *product_item)
+    for product_item in product_items:
+        db_tools.add_product_item('designcuts.com', username, *product_item)
 
 
 def parse_product_info(driver, product_link):
@@ -124,14 +124,14 @@ def parse_product_info(driver, product_link):
     categories = categories[1:]
 
     try:
-        price_elem = WebDriverWait(driver, timeout=20).until(
+        price_elem = WebDriverWait(driver, timeout=5).until(
             lambda d: d.find_element(
                 By.XPATH,
                 '//section[@id="product-hero"]//span[@class="btn-price"]/ins',
             )
         )
     except TimeoutException:
-        price_elem = WebDriverWait(driver, timeout=20).until(
+        price_elem = WebDriverWait(driver, timeout=5).until(
             lambda d: d.find_element(
                 By.XPATH,
                 '//section[@id="product-hero"]//span[@class="btn-price"]',
