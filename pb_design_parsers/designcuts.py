@@ -2,11 +2,15 @@ import email
 import imaplib
 import re
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 from loguru import logger
+from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 
-from pb_design_parsers import db_tools
+from pb_design_parsers import browser, db_tools
 
 
 def parse(username, mail_username, mail_password, imap_server, folder):
@@ -26,8 +30,8 @@ def parse(username, mail_username, mail_password, imap_server, folder):
     for mails_body in mails_bodies:
         email_messages.append(email.message_from_bytes(mails_body))
 
-    # for email_uid in email_uids:
-    #     mail.store(email_uid, '+FLAGS', '\\Deleted')
+    for email_uid in email_uids:
+        mail.store(email_uid, '+FLAGS', '\\Deleted')
 
     soups = []
     for email_message in email_messages:
@@ -64,3 +68,77 @@ def parse(username, mail_username, mail_password, imap_server, folder):
                 username=username,
             )
             remainder = 0
+
+
+def refresh_products(username):
+    driver = browser.get()
+    page_num = 1
+    is_content_exist = True
+    product_links = []
+
+    while is_content_exist:
+        driver.get(f'https://www.designcuts.com/vendor/{username}/page/{page_num}/')
+
+        try:
+            product_link_elems = WebDriverWait(driver, timeout=10).until(
+                lambda d: d.find_elements(By.XPATH, '//a[@class="title"]')
+            )
+        except TimeoutException:
+            is_content_exist = False
+            product_link_elems = []
+
+        for product_link_elem in product_link_elems:
+            product_links.append(product_link_elem.get_attribute('href'))
+
+        page_num += 1
+
+        product_items = []
+        for product_link in product_links:
+            try:
+                product_items.append(parse_product_info(driver, product_link))
+            except WebDriverException:
+                driver = browser.get()
+                product_items.append(parse_product_info(driver, product_link))
+
+        for product_item in product_items:
+            db_tools.add_product_item('designcuts.com', username, *product_item)
+
+
+def parse_product_info(driver, product_link):
+    driver.get(product_link)
+    is_live = True
+    product_name_elem = WebDriverWait(driver, timeout=20).until(
+        lambda d: d.find_element(By.XPATH, '//section[@id="product-hero"]//h1')
+    )
+    product_name = product_name_elem.text
+
+    category_elem = WebDriverWait(driver, timeout=20).until(
+        lambda d: d.find_element(
+            By.XPATH,
+            '//section[@id="product-hero"]//a[@class="category"]',
+        )
+    )
+    category_link = category_elem.get_attribute('href')
+    category_path = urlparse(category_link).path
+    categories = category_path.strip('/').split('/')
+    categories = categories[1:]
+
+    try:
+        price_elem = WebDriverWait(driver, timeout=20).until(
+            lambda d: d.find_element(
+                By.XPATH,
+                '//section[@id="product-hero"]//span[@class="btn-price"]/ins',
+            )
+        )
+    except TimeoutException:
+        price_elem = WebDriverWait(driver, timeout=20).until(
+            lambda d: d.find_element(
+                By.XPATH,
+                '//section[@id="product-hero"]//span[@class="btn-price"]',
+            )
+        )
+    price = price_elem.text
+    price = int(float(price[1:])*100)
+    item_license_prices = {'commercial': price}
+
+    return (product_name, product_link, is_live, categories, item_license_prices)

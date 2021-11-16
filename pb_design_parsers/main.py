@@ -26,6 +26,13 @@ def parse_marketы():
     creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
     envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
     yellowimgs.parse(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
+    designcuts.parse(
+        os.environ.get('DC_USER'),
+        os.environ.get('BOT_MAIL_USER'),
+        os.environ.get('BOT_MAIL_PASSWORD'),
+        os.environ.get('BOT_MAIL_IMAP'),
+        os.environ.get('DC_PARSE_FOLDER'),
+    )
 
 
 @sched.scheduled_job('cron', day_of_week=0, hour=3)
@@ -42,13 +49,7 @@ def parse_items():
 @logger.catch
 def parse_elements_items():
     logger.info('TEST')
-    designcuts.parse(
-        os.environ.get('DC_USER'),
-        os.environ.get('BOT_MAIL_USER'),
-        os.environ.get('BOT_MAIL_PASSWORD'),
-        os.environ.get('BOT_MAIL_IMAP'),
-        os.environ.get('DC_PARSE_FOLDER'),
-    )
+    designcuts.refresh_products(os.environ.get('DC_USER'))
 
 
 if __name__ == "__main__":

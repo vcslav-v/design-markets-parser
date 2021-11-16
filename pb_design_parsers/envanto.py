@@ -131,7 +131,7 @@ def refresh_products(username, password):
             page_counter += 1
 
     product_items = []
-    for i, product_link in enumerate(product_links):
+    for product_link in product_links:
         try:
             product_items.append(parse_product_info(driver, product_link))
         except WebDriverException:
