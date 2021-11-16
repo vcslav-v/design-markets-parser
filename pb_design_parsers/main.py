@@ -21,7 +21,7 @@ def send_tg_alarm(message):
 
 @sched.scheduled_job('cron', hour=1, minute=0)
 @logger.catch
-def parse_marketы():
+def parse_markets():
     logger.info('Start parsing sales')
     creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
     creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
@@ -46,14 +46,19 @@ def parse_items():
     envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
     yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
     designcuts.refresh_products(os.environ.get('DC_USER'))
+    youworkforthem.refresh_products(os.environ.get('YWFT_USER'), os.environ.get('YWFT_USER_ID'))
     logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=16, minute=24)
+@sched.scheduled_job('cron', hour=17, minute=50)
 @logger.catch
 def parse_elements_items():
     logger.info('TEST')
-    youworkforthem.refresh_products(os.environ.get('YWFT_USER'), os.environ.get('YWFT_USER_ID'))
+    youworkforthem.parse(
+        os.environ.get('YWFT_USER'),
+        os.environ.get('YWFT_EMAIL'),
+        os.environ.get('YWFT_PASS')
+    )
 
 
 if __name__ == "__main__":

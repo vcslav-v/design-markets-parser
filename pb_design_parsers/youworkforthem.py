@@ -1,5 +1,8 @@
 from time import sleep
 from urllib.parse import urljoin, urlparse
+from datetime import datetime, timedelta
+import calendar
+import os
 
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
@@ -36,6 +39,82 @@ def get_logined_driver(username, password):
     except TimeoutException:
         login(driver, username, password)
     return driver
+
+
+def parse(username, email, password):
+    domain = 'youworkforthem.com'
+    iso_start_date = os.environ.get('YWFT_START_DATE') or '2000-01-01'
+    last_db_sale = db_tools.get_last_date_in_db(domain, username)
+    start_date = datetime.fromisoformat(iso_start_date).date()
+    start_date = start_date if start_date > last_db_sale else last_db_sale + timedelta(days=1)
+    _, last_month_day = calendar.monthrange(start_date.year, start_date.month)
+    check_date = start_date + timedelta(days=last_month_day-1)
+    sale_data = []
+    if check_date >= datetime.utcnow().date():
+        return
+    driver = get_logined_driver(email, password)
+
+    while check_date < datetime.utcnow().date():
+        sale_data.extend(get_data(driver, check_date))
+
+        temp_date = check_date + timedelta(days=1)
+        _, last_month_day = calendar.monthrange(temp_date.year, temp_date.month)
+        check_date = temp_date + timedelta(days=last_month_day-1)
+
+    browser.save_cookies(driver, 'https://designer.youworkforthem.com', username)
+    driver.close()
+
+    push_to_db(sale_data, username, domain)
+
+
+def push_to_db(sale_data, username, domain):
+    for sale in sale_data:
+        check_date, product_name, product_earning, price = sale
+        db_tools.add_sale(
+            date=check_date,
+            price=price,
+            earnings=product_earning,
+            product=product_name,
+            reffered=False,
+            market_place_domain=domain,
+            username=username,
+        )
+
+
+def get_data(driver, check_date):
+    iso_date = check_date.isoformat()
+    url = f'https://designer.youworkforthem.com/sales/{iso_date},{iso_date}'
+    driver.get(url)
+
+    result = []
+
+    name_elems = WebDriverWait(driver, timeout=20).until(
+        lambda d: d.find_elements(By.XPATH, '//div[@class="salesList"]//p/strong')
+    )
+
+    for name_elem in name_elems:
+        product_name = name_elem.text
+        cell_elems = WebDriverWait(driver, timeout=10).until(
+            lambda d: d.find_elements(
+                By.XPATH,
+                f'//div[@class="salesList"]//p/strong[text()="{product_name}"]/../../..'
+            )
+        )
+        _, _, price_elem, quantity_elem, _, earnings_elem = cell_elems
+        price = price_elem.text
+        price = int(float(price[1:]) * 100)
+        quantity = int(quantity_elem.text)
+        earning = earnings_elem.text
+        earning = int(float(earning[1:]) * 100)
+
+        product_earning = earning // quantity
+        remainder = earning % quantity
+
+        for _ in range(quantity):
+            result.append((check_date, product_name, product_earning + remainder, price))
+            remainder = 0
+
+    return result
 
 
 def refresh_products(username, designer_uid):
