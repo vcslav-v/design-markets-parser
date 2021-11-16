@@ -112,16 +112,20 @@ def parse_product_info(driver, product_link):
     )
     product_name = product_name_elem.text
 
-    category_elem = WebDriverWait(driver, timeout=20).until(
-        lambda d: d.find_element(
-            By.XPATH,
-            '//section[@id="product-hero"]//a[@class="category"]',
+    try:
+        category_elem = WebDriverWait(driver, timeout=10).until(
+            lambda d: d.find_element(
+                By.XPATH,
+                '//section[@id="product-hero"]//a[@class="category"]',
+            )
         )
-    )
-    category_link = category_elem.get_attribute('href')
-    category_path = urlparse(category_link).path
-    categories = category_path.strip('/').split('/')
-    categories = categories[1:]
+    except TimeoutException:
+        categories = []
+    else:
+        category_link = category_elem.get_attribute('href')
+        category_path = urlparse(category_link).path
+        categories = category_path.strip('/').split('/')
+        categories = categories[1:]
 
     try:
         price_elem = WebDriverWait(driver, timeout=5).until(

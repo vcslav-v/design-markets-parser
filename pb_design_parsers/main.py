@@ -21,7 +21,7 @@ def send_tg_alarm(message):
 @sched.scheduled_job('cron', hour=1, minute=0)
 @logger.catch
 def parse_marketы():
-    logger.info('Start parsing')
+    logger.info('Start parsing sales')
     creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
     creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
     envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
@@ -33,7 +33,7 @@ def parse_marketы():
         os.environ.get('BOT_MAIL_IMAP'),
         os.environ.get('DC_PARSE_FOLDER'),
     )
-
+    logger.info('Parsing sales done')
 
 @sched.scheduled_job('cron', day_of_week=0, hour=3)
 @logger.catch
@@ -43,9 +43,10 @@ def parse_items():
     creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
     envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
     yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
+    logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=7, minute=50)
+@sched.scheduled_job('cron', hour=8, minute=23)
 @logger.catch
 def parse_elements_items():
     logger.info('TEST')
@@ -53,5 +54,5 @@ def parse_elements_items():
 
 
 if __name__ == "__main__":
-    logger.add(sink=send_tg_alarm)
+    logger.add(sink=send_tg_alarm, level='INFO')
     sched.start()
