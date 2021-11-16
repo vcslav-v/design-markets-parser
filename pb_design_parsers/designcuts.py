@@ -18,11 +18,14 @@ def parse(username, mail_username, mail_password, imap_server, folder):
     email_uids = data[0].split()
     for email_uid in email_uids:
         _, data = mail.uid('fetch', email_uid, '(RFC822)')
-        mails.append(data)
+        mails.append(data[0][1])
         mail.store(email_uid, '+FLAGS', '\\Deleted')
     email_messages = []
     for mail in mails:
-        email_messages.append(email.message_from_bytes(mail[0][1]))
+        email_messages.append(email.message_from_bytes(mail))
+
+    for email_uid in email_uids:
+        mail.store(email_uid, '+FLAGS', '\\Deleted')
 
     soups = []
     for email_message in email_messages:
