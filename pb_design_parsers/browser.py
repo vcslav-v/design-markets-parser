@@ -8,7 +8,7 @@ from pb_design_parsers import db_tools
 
 def get() -> webdriver.Remote:
     browser_options = webdriver.chrome.options.Options()
-    browser_options.addArgument('--kiosk')
+    browser_options.add_argument('--kiosk')
     browser_options.set_capability('browserName', 'chrome')
     browser_options.set_capability('enableVNC', True)
     browser_options.set_capability('enableVideo', False)
