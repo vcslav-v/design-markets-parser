@@ -4,6 +4,7 @@ from urllib.parse import urljoin, urlparse
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from loguru import logger
 
 from pb_design_parsers import browser, db_tools
 
@@ -83,6 +84,7 @@ def refresh_products(username, designer_uid):
 
 
 def parse_product_info(driver, product_link):
+    logger.debug(product_link)
     is_live = True
     driver.get(product_link)
 
