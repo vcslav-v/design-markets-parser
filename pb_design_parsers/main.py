@@ -4,7 +4,8 @@ import requests
 from apscheduler.schedulers.blocking import BlockingScheduler
 from loguru import logger
 
-from pb_design_parsers import creative, designcuts, envanto, yellowimgs
+from pb_design_parsers import (creative, designcuts, envanto, yellowimgs,
+                               youworkforthem)
 
 sched = BlockingScheduler()
 
@@ -35,6 +36,7 @@ def parse_marketы():
     )
     logger.info('Parsing sales done')
 
+
 @sched.scheduled_job('cron', day_of_week=0, hour=3)
 @logger.catch
 def parse_items():
@@ -43,14 +45,15 @@ def parse_items():
     creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
     envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
     yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
+    designcuts.refresh_products(os.environ.get('DC_USER'))
     logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=8, minute=23)
+@sched.scheduled_job('cron', hour=15, minute=16)
 @logger.catch
 def parse_elements_items():
     logger.info('TEST')
-    designcuts.refresh_products(os.environ.get('DC_USER'))
+    youworkforthem.refresh_products(os.environ.get('YWFT_USER'), os.environ.get('YWFT_USER_ID'))
 
 
 if __name__ == "__main__":
