@@ -102,7 +102,7 @@ def parse_product_info(driver, product_link):
 
     categories = [urlparse(product_link).path.strip('/').split('/')[0]]
 
-    category_element = driver.find_element('//div[@id="subNavHolder"]//a[@class="active-bold"]')
+    category_element = driver.find_element(By.XPATH, '//div[@id="subNavHolder"]//a[@class="active-bold"]')
     categories.append(category_element.text)
 
     return (product_name, product_link, is_live, categories, item_license_prices)
