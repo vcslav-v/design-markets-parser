@@ -40,7 +40,7 @@ def parse(username, mail_username, mail_password, imap_server, folder):
     for soup in soups:
         raw_date = re.search(r'(?<=--)\d{2}\.\d{2}\.\d{4}(?=,)', soup.text).group(0)
         _, month, year = raw_date.split('.')
-        date = datetime.fromisoformat(f'{year}-{month}-1').date() - timedelta(days=1)
+        date = datetime.fromisoformat(f'{year}-{month}-01').date() - timedelta(days=1)
         rows = soup.find_all('tr')[1:-1]
         for row in rows:
             cells = row.find_all('td')
