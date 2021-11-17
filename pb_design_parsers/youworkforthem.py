@@ -88,10 +88,12 @@ def get_data(driver, check_date):
     driver.get(url)
 
     result = []
-
-    name_elems = WebDriverWait(driver, timeout=20).until(
-        lambda d: d.find_elements(By.XPATH, '//div[@class="salesList"]//p/strong')
-    )
+    try:
+        name_elems = WebDriverWait(driver, timeout=10).until(
+            lambda d: d.find_elements(By.XPATH, '//div[@class="salesList"]//p/strong')
+        )
+    except TimeoutException:
+        return []
 
     for name_elem in name_elems:
         product_name = name_elem.text
