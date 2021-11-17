@@ -60,6 +60,7 @@ def parse(username, email, password):
         temp_date = check_date + timedelta(days=1)
         _, last_month_day = calendar.monthrange(temp_date.year, temp_date.month)
         check_date = temp_date + timedelta(days=last_month_day-1)
+        break  # test
 
     browser.save_cookies(driver, 'https://designer.youworkforthem.com', username)
     driver.close()
