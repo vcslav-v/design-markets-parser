@@ -56,6 +56,8 @@ def parse(username, email, password):
         try:
             sale_data.extend(get_data(driver, check_date))
         except WebDriverException:
+            push_to_db(sale_data, username, domain)
+            sale_data = []
             driver = get_logined_driver()
             sale_data.extend(get_data(driver, check_date))
 
