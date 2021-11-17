@@ -29,7 +29,7 @@ def login(driver, username, password):
 
 def get_logined_driver(username, password):
     driver = browser.get()
-    browser.set_cookies(driver, 'youworkforthem.com', username)
+    browser.set_cookies(driver, 'https://designer.youworkforthem.com', username)
     driver.get('https://designer.youworkforthem.com/login')
     try:
         WebDriverWait(driver, timeout=10).until(
@@ -41,7 +41,7 @@ def get_logined_driver(username, password):
 
 
 def parse(username, email, password):
-    domain = 'youworkforthem.com'
+    domain = 'designer.youworkforthem.com'
     iso_start_date = os.environ.get('YWFT_START_DATE') or '2000-01-01'
     last_db_sale = db_tools.get_last_date_in_db(domain, username)
     start_date = datetime.fromisoformat(iso_start_date).date()
@@ -56,7 +56,7 @@ def parse(username, email, password):
         sale_data.extend(get_data(driver, check_date))
         check_date = check_date + timedelta(days=1)
 
-    browser.save_cookies(driver, domain, username)
+    browser.save_cookies(driver, 'https://designer.youworkforthem.com', username)
     driver.close()
 
     push_to_db(sale_data, username, domain)
@@ -156,7 +156,7 @@ def refresh_products(username, designer_uid):
             product_items.append(parse_product_info(driver, product_link))
 
     for product_item in product_items:
-        db_tools.add_product_item('youworkforthem.com', username, *product_item)
+        db_tools.add_product_item('designer.youworkforthem.com', username, *product_item)
 
 
 def parse_product_info(driver, product_link):
