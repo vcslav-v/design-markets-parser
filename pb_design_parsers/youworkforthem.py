@@ -53,7 +53,12 @@ def parse(username, email, password):
     driver = get_logined_driver(email, password)
 
     while check_date < datetime.utcnow().date():
-        sale_data.extend(get_data(driver, check_date))
+        try:
+            sale_data.extend(get_data(driver, check_date))
+        except WebDriverException:
+            driver = get_logined_driver()
+            sale_data.extend(get_data(driver, check_date))
+
         check_date = check_date + timedelta(days=1)
 
     browser.save_cookies(driver, 'https://designer.youworkforthem.com', username)
