@@ -100,7 +100,7 @@ def get_data(driver, check_date):
                 f'//div[@class="salesList"]//p/strong[text()="{product_name}"]/../../../li'
             )
         )
-        _, _, price_elem, quantity_elem, _, earnings_elem = cell_elems
+        _, _, price_elem, quantity_elem, _, earnings_elem, _ = cell_elems
         price = price_elem.text
         price = int(float(price[1:]) * 100)
         quantity = int(quantity_elem.text)
