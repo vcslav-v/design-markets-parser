@@ -97,7 +97,7 @@ def get_data(driver, check_date):
         cell_elems = WebDriverWait(driver, timeout=10).until(
             lambda d: d.find_elements(
                 By.XPATH,
-                f'//div[@class="salesList"]//p/strong[text()="{product_name}"]/../../..'
+                f'//div[@class="salesList"]//p/strong[text()="{product_name}"]/../../..li'
             )
         )
         _, _, price_elem, quantity_elem, _, earnings_elem = cell_elems
