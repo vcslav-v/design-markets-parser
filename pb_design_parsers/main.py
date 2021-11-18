@@ -34,6 +34,11 @@ def parse_markets():
         os.environ.get('BOT_MAIL_IMAP'),
         os.environ.get('DC_PARSE_FOLDER'),
     )
+    youworkforthem.parse(
+        os.environ.get('YWFT_USER'),
+        os.environ.get('YWFT_EMAIL'),
+        os.environ.get('YWFT_PASS')
+    )
     logger.info('Parsing sales done')
 
 
@@ -54,11 +59,6 @@ def parse_items():
 @logger.catch
 def parse_elements_items():
     logger.info('TEST')
-    youworkforthem.parse(
-        os.environ.get('YWFT_USER'),
-        os.environ.get('YWFT_EMAIL'),
-        os.environ.get('YWFT_PASS')
-    )
 
 
 if __name__ == "__main__":
