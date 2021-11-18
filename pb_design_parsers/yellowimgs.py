@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from time import sleep
+from loguru import logger
 
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
@@ -50,6 +51,7 @@ def get_logined_driver(username, password):
     return driver
 
 
+@logger.catch
 def parse(username, password):
     domain = 'yellowimages.com'
     iso_start_date = os.environ.get('YELLOWIMGS_START_DATE') or '2000-01-01'
@@ -106,6 +108,7 @@ def parse(username, password):
     push_to_db(sale_data, username, domain)
 
 
+@logger.catch
 def refresh_products(username, password):
     driver = get_logined_driver(username, password)
     base_caregories = ['objects', 'store', '3d-models', 'creative-fonts']

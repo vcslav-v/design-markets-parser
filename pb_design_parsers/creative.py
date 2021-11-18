@@ -4,6 +4,7 @@ import os
 from time import sleep
 import csv
 from datetime import datetime
+from loguru import logger
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -77,6 +78,7 @@ def push_data_csv(driver, username):
     submit_button.click()
 
 
+@logger.catch
 def parse(username, password):
     driver = browser.get()
     browser.set_cookies(driver, 'https://creativemarket.com', username)
@@ -126,6 +128,7 @@ def get_logined_driver(username, password):
     return driver
 
 
+@logger.catch
 def refresh_products(username, password):
     driver = get_logined_driver(username, password)
     driver.get('https://creativemarket.com/account/dashboard/products')

@@ -40,6 +40,7 @@ def get_logined_driver(username, password):
     return driver
 
 
+@logger.catch
 def parse(username, email, password):
     domain = 'designer.youworkforthem.com'
     iso_start_date = os.environ.get('YWFT_START_DATE') or '2000-01-01'
@@ -121,6 +122,7 @@ def get_data(driver, check_date):
     return result
 
 
+@logger.catch
 def refresh_products(username, designer_uid):
     driver = browser.get()
     driver.get(

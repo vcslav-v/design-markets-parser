@@ -15,8 +15,6 @@ class Product(Base):
 
     name = Column(Text, unique=True)
 
-    sales = relationship('Sale', back_populates='product')
-
     items = relationship('ProductItem', back_populates='product')
 
 
@@ -27,6 +25,7 @@ class ProductItem(Base):
 
     id = Column(Integer, primary_key=True)
 
+    name = Column(Text)
     url = Column(Text, unique=True)
 
     personal_price_cents = Column(Integer)
@@ -42,6 +41,8 @@ class ProductItem(Base):
     account_id = Column(Integer, ForeignKey('accounts.id'))
     account = relationship('Account', back_populates='product_items')
 
+    sales = relationship('Sale', back_populates='product_item')
+
 
 class Sale(Base):
     """Sale."""
@@ -54,14 +55,8 @@ class Sale(Base):
     price_cents = Column(Integer)
     earning_cents = Column(Integer)
 
-    product_id = Column(Integer, ForeignKey('products.id'))
-    product = relationship('Product', back_populates='sales')
-
-    market_place_id = Column(Integer, ForeignKey('market_places.id'))
-    market_place = relationship('MarketPlace', back_populates='sales')
-
-    account_id = Column(Integer, ForeignKey('accounts.id'))
-    account = relationship('Account', back_populates='sales')
+    product_item_id = Column(Integer, ForeignKey('product_item.id'))
+    product_item = relationship('ProductItem', back_populates='sales')
 
 
 class MarketPlace(Base):
@@ -74,7 +69,6 @@ class MarketPlace(Base):
     domain = Column(Text, unique=True)
 
     accounts = relationship('Account', back_populates='market_place')
-    sales = relationship('Sale', back_populates='market_place')
 
 
 class Account(Base):
@@ -90,8 +84,6 @@ class Account(Base):
     market_place = relationship('MarketPlace', back_populates='accounts')
 
     cookies = relationship('Cookie', back_populates='account')
-
-    sales = relationship('Sale', back_populates='account')
 
     product_items = relationship('ProductItem', back_populates='account')
 

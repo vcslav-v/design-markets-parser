@@ -90,7 +90,7 @@ def add_sale(
     price: int = None,
     earnings: int = None,
     product: str = None,
-    reffered: bool = None,
+    reffered: bool = False,
     market_place_domain: str = None,
     username: str = None,
 ):
@@ -106,6 +106,7 @@ def add_sale(
             )
             session.add(account)
             session.add(market_place)
+            session.commit()
         else:
             account = session.query(models.Account).filter_by(
                 username=username,
@@ -117,24 +118,32 @@ def add_sale(
                     market_place=market_place,
                 )
                 session.add(account)
+                session.commit()
         if reffered:
-            db_product = session.query(models.Product).filter_by(name=REFER_PRODUCT_NAME).first()
+            db_product_item = session.query(models.ProductItem).filter_by(
+                name=REFER_PRODUCT_NAME,
+                account=account,
+            ).first()
         else:
-            db_product = session.query(models.Product).filter_by(name=product).first()
+            db_product_item = session.query(models.ProductItem).filter_by(
+                name=product,
+                account=account,
+            ).first()
 
-        if not db_product:
-            db_product = models.Product(
+        if not db_product_item:
+            db_product = models.Product(name=product if not reffered else REFER_PRODUCT_NAME)
+            db_product_item = models.ProductItem(
                 name=product if not reffered else REFER_PRODUCT_NAME,
+                account=account,
+                product=db_product,
             )
-            session.add(db_product)
+            session.add(db_product_item)
 
         sale = models.Sale(
             date=date,
             price_cents=price,
             earning_cents=earnings,
-            product=db_product,
-            market_place=market_place,
-            account=account,
+            product_item=db_product_item,
         )
 
         session.add(sale)
@@ -154,9 +163,12 @@ def get_last_date_in_db(domain, username):
         if not account:
             return datetime.fromtimestamp(0).date()
 
-        sale = session.query(models.Sale).filter_by(
-            market_place=market_place,
+        product_items = session.query(models.ProductItem).filter_by(
             account=account,
+        ).all()
+
+        sale = session.query(models.Sale).filter(
+            models.Sale.product_item.in_(product_items)
         ).order_by(models.Sale.date.desc()).first()
         if sale:
             return sale.date.date()
@@ -192,21 +204,14 @@ def add_product_item(
             session.add(db_account)
             session.commit()
 
-        db_product = session.query(models.Product).filter_by(name=name).first()
-        if not db_product:
-            db_product = models.Product(name=name)
-            session.add(db_product)
-            session.commit()
-
         db_product_item = session.query(models.ProductItem).filter_by(
-            product=db_product,
-            account=db_account,
+            name=name,
+            account=db_account
         ).first()
         if not db_product_item:
-            db_product_item = models.ProductItem(
-                product=db_product,
-                account=db_account,
-            )
+            db_product = models.Product(name=name)
+            session.add(db_product)
+            db_product_item = models.ProductItem(name=name, account=db_account, product=db_product)
 
         db_product_item.url = url
         db_product_item.category = '/'.join(categories)

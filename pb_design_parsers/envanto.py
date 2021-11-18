@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 from time import sleep
 from urllib.parse import urljoin
+from loguru import logger
 
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
@@ -72,6 +73,7 @@ def push_to_db(sale_data, username, domain):
         )
 
 
+@logger.catch
 def parse(username, password):
     domain = 'elements-contributors.envato.com'
     iso_start_date = os.environ.get('ENVANTO_START_DATE') or '2000-01-01'
@@ -97,6 +99,7 @@ def parse(username, password):
     push_to_db(sale_data, username, domain)
 
 
+@logger.catch
 def refresh_products(username, password):
     driver = get_logined_driver(username, password)
     driver.get(f'https://elements.envato.com/user/{username}')

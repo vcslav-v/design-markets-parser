@@ -13,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from pb_design_parsers import browser, db_tools
 
 
+@logger.catch
 def parse(username, mail_username, mail_password, imap_server, folder):
     mail = imaplib.IMAP4_SSL(imap_server)
     mail.login(mail_username, mail_password)
@@ -70,6 +71,7 @@ def parse(username, mail_username, mail_password, imap_server, folder):
             remainder = 0
 
 
+@logger.catch
 def refresh_products(username):
     driver = browser.get()
     page_num = 1

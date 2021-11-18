@@ -19,46 +19,88 @@ def send_tg_alarm(message):
             ))
 
 
-@sched.scheduled_job('cron', hour=1, minute=0)
+@sched.scheduled_job('cron', hour=19, minute=0)
 @logger.catch
 def parse_markets():
     logger.info('Start parsing sales')
-    creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
-    creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
-    envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
-    yellowimgs.parse(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
-    designcuts.parse(
-        os.environ.get('DC_USER'),
-        os.environ.get('BOT_MAIL_USER'),
-        os.environ.get('BOT_MAIL_PASSWORD'),
-        os.environ.get('BOT_MAIL_IMAP'),
-        os.environ.get('DC_PARSE_FOLDER'),
-    )
-    youworkforthem.parse(
-        os.environ.get('YWFT_USER'),
-        os.environ.get('YWFT_EMAIL'),
-        os.environ.get('YWFT_PASS')
-    )
+    # try:
+    #     creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
+    # except Exception as e:
+    #     logger.error(e)
+
+    # try:
+    #     creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
+    # except Exception as e:
+    #     logger.error(e)
+
+    try:
+        envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
+    except Exception as e:
+        logger.error(e)
+
+    try:
+        yellowimgs.parse(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
+    except Exception as e:
+        logger.error(e)
+
+    # try:
+    #     designcuts.parse(
+    #         os.environ.get('DC_USER'),
+    #         os.environ.get('BOT_MAIL_USER'),
+    #         os.environ.get('BOT_MAIL_PASSWORD'),
+    #         os.environ.get('BOT_MAIL_IMAP'),
+    #         os.environ.get('DC_PARSE_FOLDER'),
+    #     )
+    # except Exception as e:
+    #     logger.error(e)
+
+    try:
+        youworkforthem.parse(
+            os.environ.get('YWFT_USER'),
+            os.environ.get('YWFT_EMAIL'),
+            os.environ.get('YWFT_PASS')
+        )
+    except Exception as e:
+        logger.error(e)
+
     logger.info('Parsing sales done')
 
 
-@sched.scheduled_job('cron', day_of_week=0, hour=3)
+@sched.scheduled_job('cron', hour=0)
 @logger.catch
 def parse_items():
     logger.info('Start parsing items')
-    creative.refresh_products(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
-    creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
-    envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
-    yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
-    designcuts.refresh_products(os.environ.get('DC_USER'))
-    youworkforthem.refresh_products(os.environ.get('YWFT_USER'), os.environ.get('YWFT_USER_ID'))
+    try:
+        creative.refresh_products(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
+    except Exception as e:
+        logger.error(e)
+
+    try:
+        creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
+    except Exception as e:
+        logger.error(e)
+
+    try:
+        envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
+    except Exception as e:
+        logger.error(e)
+
+    try:
+        yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
+    except Exception as e:
+        logger.error(e)
+
+    try:
+        designcuts.refresh_products(os.environ.get('DC_USER'))
+    except Exception as e:
+        logger.error(e)
+
+    try:
+        youworkforthem.refresh_products(os.environ.get('YWFT_USER'), os.environ.get('YWFT_USER_ID'))
+    except Exception as e:
+        logger.error(e)
+
     logger.info('Parsing items done')
-
-
-@sched.scheduled_job('cron', hour=6, minute=50)
-@logger.catch
-def parse_elements_items():
-    logger.info('TEST')
 
 
 if __name__ == "__main__":
