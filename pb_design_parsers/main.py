@@ -103,11 +103,11 @@ def parse_items():
     logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=13, minute=33)
+@sched.scheduled_job('cron', hour=18, minute=58)
 @logger.catch
 def test():
     logger.info('Start test parsing')
-    yellowimgs.parse(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
+    yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
     logger.info('End test parsing')
 
 
@@ -118,3 +118,4 @@ if __name__ == "__main__":
 
 # youworkforthem
 # envanto
+# yellowimgs.parse(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
