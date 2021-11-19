@@ -22,12 +22,12 @@
                             <td>{{ name }}</td>
                             <td>
                             {% for url in urls %}
-                                <p>{{ url }}</p>
+                                <p class="mb-2"><a href="{{ url }}">{{ url }}</a></p>
                             {% endfor %}
                             </td>
                             <td>
                                 <form method="post" action="{{ url_for('product_merge') }}#product_{{ id }}" enctype="multipart/form-data">
-                                    <div class="input-group mb-3 w-25">
+                                    <div class="input-group mb-3 w-35">
                                         <input type="text" class="form-control" aria-describedby="button-addon2" name="{{ id }} merge">
                                         <button class="btn btn-outline-primary btn-sm" type="submit" id="button-addon2">Add</button>
                                     </div>
