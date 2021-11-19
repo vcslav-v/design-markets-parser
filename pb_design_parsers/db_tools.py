@@ -245,7 +245,7 @@ def get_all_products_info():
     sql_request = """
         SELECT products.id, products.name, string_agg(product_item.url, '|')
         FROM products JOIN product_item on products.id = product_item.product_id
-        WHERE product_item.is_live and product_item.url is not null 
+        WHERE product_item.is_live and product_item.url is not null
         GROUP BY products.id
         ORDER BY products.name;
     """

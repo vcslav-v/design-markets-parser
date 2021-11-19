@@ -103,7 +103,7 @@ def parse_items():
     logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=18, minute=3)
+@sched.scheduled_job('cron', hour=20, minute=24)
 @logger.catch
 def test():
     logger.info('Start test parsing')
