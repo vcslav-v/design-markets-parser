@@ -171,7 +171,7 @@ def get_last_date_in_db(domain, username):
         """
         db_response = session.execute(sql_request)
         for row in db_response:
-            return row[0].date.date()
+            return row[0].date()
         return datetime.fromtimestamp(0).date()
 
 
