@@ -59,7 +59,7 @@ def parse(username, email, password):
         except WebDriverException:
             push_to_db(sale_data, username, domain)
             sale_data = []
-            driver = get_logined_driver()
+            driver = get_logined_driver(email, password)
             sale_data.extend(get_data(driver, check_date))
 
         check_date = check_date + timedelta(days=1)
