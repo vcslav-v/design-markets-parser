@@ -103,11 +103,13 @@ def parse_items():
     logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=10, minute=11)
+@sched.scheduled_job('cron', hour=11, minute=41)
 @logger.catch
 def test():
     logger.info('Start test parsing')
-    envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
+    envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
+    logger.info('End test parsing')
+
 
 if __name__ == "__main__":
     logger.add(sink=send_tg_alarm, level='INFO')

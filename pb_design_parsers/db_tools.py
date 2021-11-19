@@ -5,6 +5,7 @@ from pb_design_parsers import db, models
 from pb_design_parsers import REFER_PRODUCT_NAME
 from cryptography.fernet import Fernet
 from datetime import datetime
+from loguru import logger
 
 
 def get_cookies(domain: str, username: str) -> list[dict]:
@@ -236,4 +237,37 @@ def add_product_item(
                     db_product_item.special_license = license_text
 
         session.add(db_product_item)
+        session.commit()
+
+
+@logger.catch
+def get_all_products_info():
+    sql_request = """
+        SELECT products.id, products.name, string_agg(product_item.url, '|')
+        FROM products JOIN product_item on products.id = product_item.product_id
+        WHERE product_item.is_live and product_item.url is not null 
+        GROUP BY products.id
+        ORDER BY products.name;
+    """
+    with db.SessionLocal() as session:
+        db_responce = session.execute(sql_request)
+        result = [(*row[:-1], row[-1].split('|')) for row in db_responce]
+
+    return result
+
+
+@logger.catch
+def merge_products(main_product_id, additional_product_id):
+    with db.SessionLocal() as session:
+        main_product = session.query(models.Product).filter_by(
+            id=main_product_id
+        ).first()
+        additional_product = session.query(models.Product).filter_by(
+            id=additional_product_id
+        ).first()
+
+        for additional_product_item in additional_product.items:
+            main_product.items.append(additional_product_item)
+
+        session.delete(additional_product)
         session.commit()

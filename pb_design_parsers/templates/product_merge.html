@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Product name</th>
+                        <th scope="col">Links</th>
+                        <th scope="col">Merge</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in products_info %}
+                    {% set id = row[0] %}
+                    {% set name = row[1] %}
+                    {% set urls = row[2] %}
+                        <tr id="product_{{ id }}">
+                            <th scope="row">{{ id }}</th>
+                            <td>{{ name }}</td>
+                            <td>
+                            {% for url in urls %}
+                                <p>{{ url }}</p>
+                            {% endfor %}
+                            </td>
+                            <td>
+                                <form method="post" action="{{ url_for('product_merge') }}#product_{{ id }}" enctype="multipart/form-data">
+                                    <div class="input-group mb-3 w-25">
+                                        <input type="text" class="form-control" aria-describedby="button-addon2" name="{{ id }} merge">
+                                        <button class="btn btn-outline-primary btn-sm" type="submit" id="button-addon2">Add</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

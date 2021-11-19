@@ -6,15 +6,31 @@ from threading import Thread
 from loguru import logger
 
 from flask import Flask, render_template, request
+from flask_httpauth import HTTPBasicAuth
+from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from pb_design_parsers import creative
+from pb_design_parsers import creative, db_tools
 from pb_design_parsers import SPLITTER, UPLOAD_DIR
 
 app = Flask(__name__)
+auth = HTTPBasicAuth()
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY') or 'you-will-never-guess'
+users = {
+    os.environ.get('FLASK_LOGIN') or 'root': generate_password_hash(
+        os.environ.get('FLASK_PASS') or 'pass'
+    ),
+}
 
 
-@app.route("/upload-data",  methods=['GET', 'POST'])
+@auth.verify_password
+def verify_password(username, password):
+    if username in users and \
+            check_password_hash(users.get(username), password):
+        return username
+
+
+@app.route('/upload-data',  methods=['GET', 'POST'])
 def upload_data():
     if request.method == 'POST':
         data_files = request.files.getlist('data_file')
@@ -30,6 +46,28 @@ def upload_data():
                 )
                 thread.start()
     return render_template('upload_data.html')
+
+
+@app.route('/product-merge',  methods=['GET', 'POST'])
+@auth.login_required
+def product_merge():
+    if request.method == 'POST':
+        for raw_main_product, raw_additional_product in request.form.items():
+            main_product = raw_main_product.split()[0]
+            if main_product.isdecimal():
+                main_product = int(main_product)
+            else:
+                break
+
+            if raw_additional_product.isdecimal():
+                additional_product = int(raw_additional_product)
+            else:
+                break
+
+            db_tools.merge_products(main_product, additional_product)
+
+    products_info = db_tools.get_all_products_info()
+    return render_template('product_merge.html', products_info=products_info)
 
 
 def upload(files, prefix, directory=UPLOAD_DIR):
