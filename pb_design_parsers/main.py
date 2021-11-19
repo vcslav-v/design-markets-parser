@@ -19,7 +19,7 @@ def send_tg_alarm(message):
             ))
 
 
-@sched.scheduled_job('cron', hour=19, minute=0)
+# @sched.scheduled_job('cron', hour=19, minute=0)
 @logger.catch
 def parse_markets():
     logger.info('Start parsing sales')
@@ -66,7 +66,7 @@ def parse_markets():
     logger.info('Parsing sales done')
 
 
-@sched.scheduled_job('cron', hour=0)
+# @sched.scheduled_job('cron', hour=0)
 @logger.catch
 def parse_items():
     logger.info('Start parsing items')
@@ -107,7 +107,8 @@ def parse_items():
 @logger.catch
 def test():
     logger.info('Start test parsing')
-    yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
+    creative.refresh_products(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
+    creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
     logger.info('End test parsing')
 
 
@@ -118,4 +119,4 @@ if __name__ == "__main__":
 
 # youworkforthem
 # envanto
-# yellowimgs.parse(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
+# yellowimgs
