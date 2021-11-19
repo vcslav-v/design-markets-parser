@@ -103,15 +103,11 @@ def parse_items():
     logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=8, minute=40)
+@sched.scheduled_job('cron', hour=9, minute=5)
 @logger.catch
 def test():
     logger.info('Start test parsing')
-    youworkforthem.parse(
-        os.environ.get('YWFT_USER'),
-        os.environ.get('YWFT_EMAIL'),
-        os.environ.get('YWFT_PASS')
-    )
+    youworkforthem.refresh_products(os.environ.get('YWFT_USER'), os.environ.get('YWFT_USER_ID'))
 
 
 if __name__ == "__main__":
