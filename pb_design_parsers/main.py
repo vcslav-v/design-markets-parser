@@ -103,6 +103,17 @@ def parse_items():
     logger.info('Parsing items done')
 
 
+@sched.scheduled_job('cron', hour=5, minute=5)
+@logger.catch
+def test():
+    logger.info('Start test parsing')
+    youworkforthem.parse(
+        os.environ.get('YWFT_USER'),
+        os.environ.get('YWFT_EMAIL'),
+        os.environ.get('YWFT_PASS')
+    )
+
+
 if __name__ == "__main__":
     logger.add(sink=send_tg_alarm, level='INFO')
     sched.start()

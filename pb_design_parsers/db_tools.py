@@ -94,6 +94,7 @@ def add_sale(
     market_place_domain: str = None,
     username: str = None,
 ):
+    product_name = product if not reffered else REFER_PRODUCT_NAME
     with db.SessionLocal() as session:
         market_place = session.query(models.MarketPlace).filter_by(
             domain=market_place_domain
@@ -119,21 +120,19 @@ def add_sale(
                 )
                 session.add(account)
                 session.commit()
-        if reffered:
-            db_product_item = session.query(models.ProductItem).filter_by(
-                name=REFER_PRODUCT_NAME,
-                account=account,
-            ).first()
-        else:
-            db_product_item = session.query(models.ProductItem).filter_by(
-                name=product,
-                account=account,
-            ).first()
+
+        db_product_item = session.query(models.ProductItem).filter_by(
+            name=product_name,
+            account=account,
+        ).first()
 
         if not db_product_item:
-            db_product = models.Product(name=product if not reffered else REFER_PRODUCT_NAME)
+            db_product = session.query(models.Product).filter_by(name=product_name).first()
+            if not db_product:
+                db_product = models.Product(name=product_name)
+                session.add(db_product)
             db_product_item = models.ProductItem(
-                name=product if not reffered else REFER_PRODUCT_NAME,
+                name=product_name,
                 account=account,
                 product=db_product,
             )
@@ -209,8 +208,10 @@ def add_product_item(
             account=db_account
         ).first()
         if not db_product_item:
-            db_product = models.Product(name=name)
-            session.add(db_product)
+            db_product = session.query(models.Product).filter_by(name=name).first()
+            if not db_product:
+                db_product = models.Product(name=name)
+                session.add(db_product)
             db_product_item = models.ProductItem(name=name, account=db_account, product=db_product)
 
         db_product_item.url = url
