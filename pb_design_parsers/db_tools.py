@@ -162,17 +162,17 @@ def get_last_date_in_db(domain, username):
         if not account:
             return datetime.fromtimestamp(0).date()
 
-        product_items = session.query(models.ProductItem).filter_by(
-            account=account,
-        ).all()
-
-        sale = session.query(models.Sale).filter(
-            models.Sale.product_item.in_(product_items)
-        ).order_by(models.Sale.date.desc()).first()
-        if sale:
-            return sale.date.date()
-        else:
-            return datetime.fromtimestamp(0).date()
+        sql_request = f"""
+        select date
+        from sales join product_item on sales.product_item_id = product_item.id
+        where product_item.account_id = {account.id}
+        order by sales.date desc
+        limit 1;
+        """
+        db_response = session.execute(sql_request)
+        for row in db_response:
+            return row[0].date.date()
+        return datetime.fromtimestamp(0).date()
 
 
 def add_product_item(
