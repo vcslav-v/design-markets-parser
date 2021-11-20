@@ -43,16 +43,16 @@ def parse_markets():
     except Exception as e:
         logger.error(e)
 
-    # try:
-    #     designcuts.parse(
-    #         os.environ.get('DC_USER'),
-    #         os.environ.get('BOT_MAIL_USER'),
-    #         os.environ.get('BOT_MAIL_PASSWORD'),
-    #         os.environ.get('BOT_MAIL_IMAP'),
-    #         os.environ.get('DC_PARSE_FOLDER'),
-    #     )
-    # except Exception as e:
-    #     logger.error(e)
+    try:
+        designcuts.parse(
+            os.environ.get('DC_USER'),
+            os.environ.get('BOT_MAIL_USER'),
+            os.environ.get('BOT_MAIL_PASSWORD'),
+            os.environ.get('BOT_MAIL_IMAP'),
+            os.environ.get('DC_PARSE_FOLDER'),
+        )
+    except Exception as e:
+        logger.error(e)
 
     try:
         youworkforthem.parse(
@@ -103,12 +103,18 @@ def parse_items():
     logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=8, minute=35)
+@sched.scheduled_job('cron', hour=8, minute=50)
 @logger.catch
 def test():
     logger.info('Start test parsing')
-    creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
-    creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
+    designcuts.refresh_products(os.environ.get('DC_USER'))
+    designcuts.parse(
+        os.environ.get('DC_USER'),
+        os.environ.get('BOT_MAIL_USER'),
+        os.environ.get('BOT_MAIL_PASSWORD'),
+        os.environ.get('BOT_MAIL_IMAP'),
+        os.environ.get('DC_PARSE_FOLDER'),
+    )
     logger.info('End test parsing')
 
 
@@ -120,3 +126,4 @@ if __name__ == "__main__":
 # youworkforthem
 # envanto
 # yellowimgs
+# creative
