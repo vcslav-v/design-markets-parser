@@ -23,15 +23,15 @@ def send_tg_alarm(message):
 @logger.catch
 def parse_markets():
     logger.info('Start parsing sales')
-    # try:
-    #     creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
-    # except Exception as e:
-    #     logger.error(e)
+    try:
+        creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
+    except Exception as e:
+        logger.error(e)
 
-    # try:
-    #     creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
-    # except Exception as e:
-    #     logger.error(e)
+    try:
+        creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
+    except Exception as e:
+        logger.error(e)
 
     try:
         envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
@@ -103,12 +103,12 @@ def parse_items():
     logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=20, minute=24)
+@sched.scheduled_job('cron', hour=8, minute=35)
 @logger.catch
 def test():
     logger.info('Start test parsing')
-    creative.refresh_products(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
-    creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
+    creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
+    creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
     logger.info('End test parsing')
 
 
