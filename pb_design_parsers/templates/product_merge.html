@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-9">
-            <table class="table table-sm">
+            <table class="table table-sm table-striped">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -27,9 +27,14 @@
                             </td>
                             <td>
                                 <form method="post" action="{{ url_for('product_merge') }}#product_{{ id }}" enctype="multipart/form-data">
-                                    <div class="input-group mb-3 w-35">
+                                    <div class="input-group mb-3 input-group-sm">
                                         <input type="text" class="form-control" aria-describedby="button-addon2" name="{{ id }} merge">
                                         <button class="btn btn-outline-primary btn-sm" type="submit" id="button-addon2">Add</button>
+                                    </div>
+                                </form>
+                                <form method="post" action="{{ url_for('product_merge') }}#product_{{ id }}" enctype="multipart/form-data">
+                                    <div class="mb-1 d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button class="btn btn-outline-danger btn-sm" value="{{ id }}" type="submit" name="divide">Div</button>
                                     </div>
                                 </form>
                             </td>

@@ -19,7 +19,7 @@ def send_tg_alarm(message):
             ))
 
 
-# @sched.scheduled_job('cron', hour=19, minute=0)
+@sched.scheduled_job('cron', hour=21, minute=0)
 @logger.catch
 def parse_markets():
     logger.info('Start parsing sales')
@@ -66,7 +66,7 @@ def parse_markets():
     logger.info('Parsing sales done')
 
 
-# @sched.scheduled_job('cron', hour=0)
+@sched.scheduled_job('cron', day_of_week='sun', hour=0)
 @logger.catch
 def parse_items():
     logger.info('Start parsing items')
@@ -103,27 +103,6 @@ def parse_items():
     logger.info('Parsing items done')
 
 
-@sched.scheduled_job('cron', hour=8, minute=50)
-@logger.catch
-def test():
-    logger.info('Start test parsing')
-    designcuts.refresh_products(os.environ.get('DC_USER'))
-    designcuts.parse(
-        os.environ.get('DC_USER'),
-        os.environ.get('BOT_MAIL_USER'),
-        os.environ.get('BOT_MAIL_PASSWORD'),
-        os.environ.get('BOT_MAIL_IMAP'),
-        os.environ.get('DC_PARSE_FOLDER'),
-    )
-    logger.info('End test parsing')
-
-
 if __name__ == "__main__":
     logger.add(sink=send_tg_alarm, level='INFO')
     sched.start()
-
-
-# youworkforthem
-# envanto
-# yellowimgs
-# creative

@@ -266,8 +266,37 @@ def merge_products(main_product_id, additional_product_id):
             id=additional_product_id
         ).first()
 
+        if not main_product or not additional_product:
+            return
+
         for additional_product_item in additional_product.items:
             main_product.items.append(additional_product_item)
 
         session.delete(additional_product)
+        session.commit()
+
+
+def divide_product(product_id):
+    with db.SessionLocal() as session:
+        product = session.query(models.Product).filter_by(
+            id=product_id
+        ).first()
+
+        if not product:
+            return
+
+        attached_products = {}
+        for product_item in product.items:
+            if product_item.name != product.name:
+                if attached_products.get(product_item.name):
+                    attached_products[product_item.name].append(product_item)
+                else:
+                    attached_products[product_item.name] = [product_item]
+
+        for product_name, product_items in attached_products.items():
+            new_product = models.Product(name=product_name)
+            session.add(new_product)
+            session.commit()
+            for product_item in product_items:
+                product_item.product = new_product
         session.commit()
