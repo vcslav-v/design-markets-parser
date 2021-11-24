@@ -269,13 +269,13 @@ def get_all_products_info():
 
 @logger.catch
 def get_free_cm_products():
-    sql_request = """
+    sql_request = f"""
         SELECT product_item.name, url
         FROM product_item
         WHERE product_item.is_live AND product_item.url IS not NULL AND product_item.account_id in (
             select accounts.id 
             from accounts join market_places on accounts.market_place_id = market_places.id
-            where market_places.domain = 'creativemarket.com'
+            where market_places.domain = '{os.environ.get('MARKET_FOR_TIPS')}' and accounts.username = '{os.environ.get('USERNAME_FOR_TIPS')}'
         ) and product_item.product_id is null
         ;
     """
