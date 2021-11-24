@@ -128,14 +128,9 @@ def add_sale(
         ).first()
 
         if not db_product_item:
-            db_product = session.query(models.Product).filter_by(name=product_name).first()
-            if not db_product:
-                db_product = models.Product(name=product_name)
-                session.add(db_product)
             db_product_item = models.ProductItem(
                 name=product_name,
                 account=account,
-                product=db_product,
             )
             session.add(db_product_item)
 
@@ -209,11 +204,7 @@ def add_product_item(
             account=db_account
         ).first()
         if not db_product_item:
-            db_product = session.query(models.Product).filter_by(name=name).first()
-            if not db_product:
-                db_product = models.Product(name=name)
-                session.add(db_product)
-            db_product_item = models.ProductItem(name=name, account=db_account, product=db_product)
+            db_product_item = models.ProductItem(name=name, account=db_account)
 
         db_product_item.url = url
         db_product_item.category = '/'.join(categories)
@@ -240,20 +231,105 @@ def add_product_item(
         session.commit()
 
 
+def make_product(product_name: str, creator_id: int, item_ids: list[int]):
+    with db.SessionLocal() as session:
+        db_creator = session.query(models.Creator).filter_by(id=creator_id).first()
+        product = models.Product(
+            name=product_name,
+            creator=db_creator
+        )
+        session.add(product)
+        session.commit()
+        for item_id in item_ids:
+            db_item = session.query(models.ProductItem).filter_by(id=item_id).first()
+            db_item.product = product
+        session.commit()
+
 @logger.catch
 def get_all_products_info():
     sql_request = """
-        SELECT products.id, products.name, string_agg(product_item.url, '|')
-        FROM products JOIN product_item on products.id = product_item.product_id
-        WHERE product_item.is_live and product_item.url is not null
-        GROUP BY products.id
-        ORDER BY products.name;
+        SELECT market_places.name as market, accounts.username as acc, product_item.name, product_item.url
+        FROM product_item
+        JOIN accounts ON accounts.id = product_item.account_id 
+        JOIN market_places ON market_places.id = accounts.market_place_id 
+        WHERE product_id = {product_id}
+        ;
+    """
+
+    with db.SessionLocal() as session:
+        result = []
+        db_products = session.query(models.Product).all()
+        for db_product in db_products:
+            db_responce = session.execute(
+                sql_request.format(product_id=db_product.id)
+            )
+            result.append([db_product.id, db_product.name , list(db_responce)])
+    return result
+
+
+@logger.catch
+def get_free_cm_products():
+    sql_request = """
+        SELECT product_item.name, url
+        FROM product_item
+        WHERE product_item.is_live AND product_item.url IS not NULL AND product_item.account_id in (
+            select accounts.id 
+            from accounts join market_places on accounts.market_place_id = market_places.id
+            where market_places.domain = 'test-1.com'
+        ) and product_item.product_id is null
+        ;
     """
     with db.SessionLocal() as session:
         db_responce = session.execute(sql_request)
-        result = [(*row[:-1], row[-1].split('|')) for row in db_responce]
 
-    return result
+    return list(db_responce)
+
+
+@logger.catch
+def get_creators():
+    sql_request = f"""
+        SELECT id, name
+            FROM creators 
+            ORDER BY name
+        ;
+    """
+    with db.SessionLocal() as session:
+        db_responce = session.execute(sql_request)
+
+    return list(db_responce)
+
+
+@logger.catch
+def find_product_items_by_name(item_name: str):
+    pattren = item_name.strip()
+    pattren = pattren.replace(' ', '%')
+    sql_request = f"""
+        SELECT product_item.id, product_item.name, url, username, market_places.name
+            FROM product_item 
+            JOIN accounts ON accounts.id = product_item.account_id
+            JOIN market_places ON market_places.id = accounts.market_place_id 
+            WHERE product_item.url IS not NULL AND product_item.product_id is null and product_item.name LIKE '%{pattren}%'
+            ORDER BY product_item.name
+        ;
+    """
+    with db.SessionLocal() as session:
+        db_responce = session.execute(sql_request)
+
+    return list(db_responce)
+
+@logger.catch
+def get_markets():
+    sql_request = """
+        SELECT market_places.name, accounts.username 
+            FROM market_places
+            JOIN accounts ON accounts.market_place_id = market_places.id 
+            ORDER BY market_places.name
+        ;
+    """
+    with db.SessionLocal() as session:
+        db_responce = session.execute(sql_request)
+
+    return list(db_responce)
 
 
 @logger.catch

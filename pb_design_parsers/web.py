@@ -5,7 +5,7 @@ from datetime import datetime
 from threading import Thread
 from loguru import logger
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -51,34 +51,52 @@ def upload_data():
 @app.route('/')
 @auth.login_required
 def index():
-    return redirect(url_for('product_merge'))
+    return redirect(url_for('cur_products'))
 
 
-@app.route('/product-merge',  methods=['GET', 'POST'])
+@app.route('/make',  methods=['GET', 'POST'])
 @auth.login_required
-def product_merge():
+def make_products():
+    found_items = []
+    creators = db_tools.get_creators()
+    free_cm_products = db_tools.get_free_cm_products()
+    markets = db_tools.get_markets()
     if request.method == 'POST':
-        product_for_divide = request.form.get('divide')
-        if product_for_divide and product_for_divide.isdecimal():
-            db_tools.divide_product(int(product_for_divide))
-        else:
-            for raw_main_product, raw_additional_product in request.form.items():
-                main_product = raw_main_product.split()[0]
-                if main_product.isdecimal():
-                    main_product = int(main_product)
-                else:
-                    break
+        btn = request.form.get('btn')
+        if btn == 'submit':
+            product_name = request.form.get('product_name')
+            creator_id = int(request.form.get('creator'))
+            item_ids = []
+            for key, value in request.form.to_dict().items():
+                kw, *_ = key.split(':')
+                if kw == 'item_id' and value:
+                    try:
+                        item_ids.append(int(value))
+                    except ValueError:
+                        flash('Use numbers, jerk!')
+            db_tools.make_product(
+                product_name,
+                creator_id,
+                item_ids,
+            )
+            
+        elif btn == 'find':
+            item_name = request.form.get('product_name')
+            found_items = db_tools.find_product_items_by_name(item_name)
 
-                if raw_additional_product.isdecimal():
-                    additional_product = int(raw_additional_product)
-                else:
-                    break
+    return render_template(
+        'make_products.html',
+        creators = creators,
+        found_items=found_items,
+        free_cm_products=free_cm_products,
+        markets=markets,
+    )
 
-                db_tools.merge_products(main_product, additional_product)
-
+@app.route('/products',  methods=['GET'])
+@auth.login_required
+def cur_products():
     products_info = db_tools.get_all_products_info()
-    return render_template('product_merge.html', products_info=products_info)
-
+    return render_template('products_list.html', products_info=products_info)
 
 def upload(files, prefix, directory=UPLOAD_DIR):
     if not os.path.isdir(directory):

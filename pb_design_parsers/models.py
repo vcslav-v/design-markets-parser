@@ -17,6 +17,9 @@ class Product(Base):
 
     items = relationship('ProductItem', back_populates='product')
 
+    creator_id = Column(Integer, ForeignKey('creators.id'))
+    creator = relationship('Creator', back_populates='products')
+
 
 class ProductItem(Base):
     """Product item in market palce."""
@@ -67,6 +70,7 @@ class MarketPlace(Base):
     id = Column(Integer, primary_key=True)
 
     domain = Column(Text, unique=True)
+    name = Column(Text)
 
     accounts = relationship('Account', back_populates='market_place')
 
@@ -86,6 +90,18 @@ class Account(Base):
     cookies = relationship('Cookie', back_populates='account')
 
     product_items = relationship('ProductItem', back_populates='account')
+
+
+class Creator(Base):
+    """Creator."""
+
+    __tablename__ = 'creators'
+
+    id = Column(Integer, primary_key=True)
+
+    name = Column(Text)
+
+    products = relationship('Product', back_populates='creator')
 
 
 class Cookie(Base):

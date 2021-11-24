@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-sm table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Product name</th>
+                        <th scope="col">Items</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in products_info %}
+                    {% set id = row[0] %}
+                    {% set name = row[1] %}
+                    {% set items = row[2] %}
+                        <tr id="product_{{ id }}">
+                            <th scope="row">{{ id }}</th>
+                            <td>{{ name }}</td>
+                            <td>
+                            {% for item in items %}
+                            {% set market = item[0] %}
+                            {% set acc = item[1] %}
+                            {% set name = item[2] %}
+                            {% set url = item[3] %}
+                                <p class="my-3">{{ market }} ({{acc}}) <br> <a href="{{ url }}">{{ name }}</a></p>
+                            {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
