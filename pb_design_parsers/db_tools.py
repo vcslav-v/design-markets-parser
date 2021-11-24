@@ -275,7 +275,7 @@ def get_free_cm_products():
         WHERE product_item.is_live AND product_item.url IS not NULL AND product_item.account_id in (
             select accounts.id 
             from accounts join market_places on accounts.market_place_id = market_places.id
-            where market_places.domain = 'test-1.com'
+            where market_places.domain = 'creativemarket.com'
         ) and product_item.product_id is null
         ;
     """
