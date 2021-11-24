@@ -34,13 +34,11 @@
                     {% for market in markets[market_i:market_i + num_market_col] %}
                     {% set market_name = market[0] %}
                     {% set username = market[1] %}
-                    <div class="col-md-6">
                         <div class="input-group mb-3">
                             <label class="input-group-text" for="inputGroupSelect01">{{ market_name }} ({{ username }}) </label>
                             <input type="text" class="form-control" for="inputGroupSelect01" name="item_id:{{market_name}}-{{username}}">
                             <label class="input-group-text" for="inputGroupSelect01">id</label>
                         </div>
-                    </div>
                     {% endfor %}
                     {% endfor %}
                     <button type="submit" name="btn" value="submit" class="btn btn-outline-success">Submit</button>
