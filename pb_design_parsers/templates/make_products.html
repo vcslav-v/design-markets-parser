@@ -42,6 +42,25 @@
                     </div>
                     {% endfor %}
                     {% endfor %}
+                    <a class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" href="#additional_ids" role="button" aria-expanded="false" aria-controls="additional_ids">
+                        Add ids
+                    </a>
+                    <div class="collapse row mt-3" id="additional_ids">
+                        {% for i in range(0, num_additional_ids, 2) %}
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" for="inputGroupSelect01" name="item_id:additional-{{ i }}" placeholder="additional">
+                                <label class="input-group-text" for="inputGroupSelect01">id</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" for="inputGroupSelect01" name="item_id:additional-{{ i+1 }}" placeholder="additional">
+                                <label class="input-group-text" for="inputGroupSelect01">id</label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                      </div>
                     <button type="submit" name="btn" value="submit" class="btn btn-outline-success">Submit</button>
                 </form>
             </div>

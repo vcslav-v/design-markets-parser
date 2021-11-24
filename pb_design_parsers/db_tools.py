@@ -242,8 +242,13 @@ def make_product(product_name: str, creator_id: int, item_ids: list[int]):
         session.commit()
         for item_id in item_ids:
             db_item = session.query(models.ProductItem).filter_by(id=item_id).first()
+            if not db_item:
+                session.delete(product)
+                session.commit()
+                return False
             db_item.product = product
         session.commit()
+        return True
 
 @logger.catch
 def get_all_products_info():
@@ -383,3 +388,12 @@ def rm_product_by_id(rm_id):
         db_product = session.query(models.Product).filter_by(id=rm_id).first()
         session.delete(db_product)
         session.commit()
+
+
+def is_product_name_exist(product_name):
+    with db.SessionLocal() as session:
+        db_product = session.query(models.Product).filter_by(name=product_name).first()
+        if db_product:
+            return True
+        else:
+            return False
