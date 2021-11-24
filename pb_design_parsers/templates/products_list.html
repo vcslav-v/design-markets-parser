@@ -6,9 +6,10 @@
             <table class="table table-sm table-striped">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col">Id</th>
                         <th scope="col">Product name</th>
                         <th scope="col">Items</th>
+                        <th scope="col">Control</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,6 +28,11 @@
                             {% set url = item[3] %}
                                 <p class="my-3">{{ market }} ({{acc}}) <br> <a href="{{ url }}">{{ name }}</a></p>
                             {% endfor %}
+                            </td>
+                            <td>
+                                <form class="row g-3 mx-3" method="post" action="{{ url_for('cur_products') }}" enctype="multipart/form-data">
+                                    <button class="btn btn-outline-danger btn-sm" type="submit" name="rm" value="{{id}}">Delete</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}

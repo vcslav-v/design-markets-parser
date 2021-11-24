@@ -67,7 +67,7 @@
                                     <th scope="row">{{item_id}}</th>
                                     <td>{{item_name}}</td>
                                     <td>{{market}} ({{acc}})</td>
-                                    <td><a href="{{ item_link }}">Link</a></td>
+                                    <td><a href="{{ item_link }}" target='_blank'>Link</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -84,7 +84,7 @@
                     {% for row in free_cm_products %}
                     {% set name = row[0] %}
                     {% set link = row[1] %}
-                        <li class="list-group-item"><a href="{{ link }}">{{ name }}</a></li>
+                        <li class="list-group-item"><a href="{{ link }}" target='_blank'>{{ name }}</a></li>
                     {% endfor %}
                 </ul>
             </div>

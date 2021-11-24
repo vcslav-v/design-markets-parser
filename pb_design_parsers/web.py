@@ -61,6 +61,8 @@ def make_products():
     creators = db_tools.get_creators()
     free_cm_products = db_tools.get_free_cm_products()
     markets = db_tools.get_markets()
+    k = (len(markets) * 2) - (len(markets) % 2)
+    markets.extend([('additional', i) for i in range(k)])
     if request.method == 'POST':
         btn = request.form.get('btn')
         if btn == 'submit':
@@ -92,9 +94,13 @@ def make_products():
         markets=markets,
     )
 
-@app.route('/products',  methods=['GET'])
+@app.route('/products',  methods=['GET', 'POST'])
 @auth.login_required
 def cur_products():
+    if request.method == 'POST':
+        rm_id = request.form.get('rm')
+        if rm_id:
+            db_tools.rm_product_by_id(int(rm_id))
     products_info = db_tools.get_all_products_info()
     return render_template('products_list.html', products_info=products_info)
 

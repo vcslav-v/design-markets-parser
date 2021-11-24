@@ -376,3 +376,10 @@ def divide_product(product_id):
             for product_item in product_items:
                 product_item.product = new_product
         session.commit()
+
+
+def rm_product_by_id(rm_id):
+    with db.SessionLocal() as session:
+        db_product = session.query(models.Product).filter_by(id=rm_id).first()
+        session.delete(db_product)
+        session.commit()
