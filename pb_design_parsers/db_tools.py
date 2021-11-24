@@ -313,7 +313,7 @@ def find_product_items_by_name(item_name: str):
             FROM product_item 
             JOIN accounts ON accounts.id = product_item.account_id
             JOIN market_places ON market_places.id = accounts.market_place_id 
-            WHERE product_item.url IS not NULL AND product_item.product_id is null and product_item.name LIKE '%{pattren}%'
+            WHERE product_item.url IS not NULL AND product_item.product_id is null and product_item.name ILIKE '%{pattren}%'
             ORDER BY product_item.name
         ;
     """
