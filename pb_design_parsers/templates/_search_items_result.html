@@ -1,0 +1,27 @@
+{% if found_items %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">id</th>
+                <th scope="col">Item name</th>
+                <th scope="col">Market</th>
+                <th scope="col">Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in  found_items %}
+            {% set item_id = row[0] %}
+            {% set item_name = row[1] %}
+            {% set item_link = row[2] %}
+            {% set acc = row[3] %}
+            {% set market = row[4] %}
+                <tr>
+                    <th scope="row">{{item_id}}</th>
+                    <td>{{item_name}}</td>
+                    <td>{{market}} ({{acc}})</td>
+                    <td><a href="{{ item_link }}" target='_blank'>Link</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

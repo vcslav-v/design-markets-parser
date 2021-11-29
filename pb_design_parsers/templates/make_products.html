@@ -5,7 +5,7 @@
         <div class="col-md-7">
             <div class="row">
                 <h2 class="mt-3">Add product</h2>
-                <form class="row g-3" method="post" action="{{ url_for('make_products') }}" enctype="multipart/form-data">
+                <form class="row g-3" method="post" id="makeForm" action="#" enctype="multipart/form-data">
                     <div class="input-group my-3">
                         <span class="input-group-text" id="inputGroup-sizing-default">Name</span>
                         <input class="form-control" list="datalistOptions" type="text" name="product_name" id="exampleDataList" aria-describedby="inputGroup-sizing-default">
@@ -15,7 +15,6 @@
                                 <option value="{{ name }}"></option>
                             {% endfor %}
                         </datalist>
-                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2" name="btn" value="find">Find</button>
                     </div>
                     <div class="input-group mb-3">
                         <label class="input-group-text" for="inputGroupSelect01">Creator</label>
@@ -64,34 +63,7 @@
                     <button type="submit" name="btn" value="submit" class="btn btn-outline-success">Submit</button>
                 </form>
             </div>
-            <div class="row mt-5">
-                {% if found_items %}
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">id</th>
-                                <th scope="col">Item name</th>
-                                <th scope="col">Market</th>
-                                <th scope="col">Link</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in  found_items %}
-                            {% set item_id = row[0] %}
-                            {% set item_name = row[1] %}
-                            {% set item_link = row[2] %}
-                            {% set acc = row[3] %}
-                            {% set market = row[4] %}
-                                <tr>
-                                    <th scope="row">{{item_id}}</th>
-                                    <td>{{item_name}}</td>
-                                    <td>{{market}} ({{acc}})</td>
-                                    <td><a href="{{ item_link }}" target='_blank'>Link</a></td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
+            <div class="row mt-5" id="search_result">
             </div>
         </div>
         <div class="col-md-1">
@@ -111,3 +83,29 @@
     </div>
 </div>
 {% endblock %}
+{% block script %}
+<script>
+    var searchInput = document.getElementById('exampleDataList');
+    searchInput.oninput = function(event) {
+        var formData = new FormData()
+        formData.append('srch_req', searchInput.value)
+        $.ajax({
+                type: 'POST',
+                url: "{{ url_for('search_free_items') }}",
+                data: formData,
+                dataType: 'html',
+                contentType: false,
+                cache: false,
+                mimeType: "multipart/form-data",
+                processData: false,
+                success: function(response) {
+                    $('#search_result').html(response)
+                },
+                error: function(error) {
+                    console.log(error);
+                },
+                
+            });
+    };
+</script>
+{% endblock%}

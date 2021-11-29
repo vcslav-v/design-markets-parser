@@ -63,44 +63,38 @@ def make_products():
     markets = db_tools.get_markets()
     num_additional_ids = 12
     if request.method == 'POST':
-        btn = request.form.get('btn')
-        if btn == 'submit':
-            product_name = request.form.get('product_name')
-            if not product_name or db_tools.is_product_name_exist(product_name):
-                flash('Wrong name or exist already')
-                return render_template(
-                    'make_products.html',
-                    num_additional_ids=num_additional_ids,
-                    creators = creators,
-                    found_items=found_items,
-                    free_cm_products=free_cm_products,
-                    markets=markets,
-                )
-            try: 
-                creator_id = int(request.form.get('creator'))
-            except ValueError:
-                flash("You've lost your creator")
+        product_name = request.form.get('product_name')
+        if not product_name or db_tools.is_product_name_exist(product_name):
+            flash('Wrong name or exist already')
+            return render_template(
+                'make_products.html',
+                num_additional_ids=num_additional_ids,
+                creators = creators,
+                found_items=found_items,
+                free_cm_products=free_cm_products,
+                markets=markets,
+            )
+        try: 
+            creator_id = int(request.form.get('creator'))
+        except ValueError:
+            flash("You've lost your creator")
+        else:
+            item_ids = []
+            for key, value in request.form.to_dict().items():
+                kw, *_ = key.split(':')
+                if kw == 'item_id' and value:
+                    try:
+                        item_ids.append(int(value))
+                    except ValueError:
+                        flash('Use numbers, jerk!')
+                        break
             else:
-                item_ids = []
-                for key, value in request.form.to_dict().items():
-                    kw, *_ = key.split(':')
-                    if kw == 'item_id' and value:
-                        try:
-                            item_ids.append(int(value))
-                        except ValueError:
-                            flash('Use numbers, jerk!')
-                            break
-                else:
-                    if not db_tools.make_product(
-                            product_name,
-                            creator_id,
-                            item_ids,
-                        ):
-                        flash('Wrong id')
-            
-        elif btn == 'find':
-            item_name = request.form.get('product_name')
-            found_items = db_tools.find_product_items_by_name(item_name)
+                if not db_tools.make_product(
+                        product_name,
+                        creator_id,
+                        item_ids,
+                    ):
+                    flash('Wrong id')
 
     return render_template(
         'make_products.html',
@@ -110,6 +104,14 @@ def make_products():
         free_cm_products=free_cm_products,
         markets=markets,
     )
+
+
+@app.route('/search-items',  methods=['POST'])
+@auth.login_required
+def search_free_items():
+    found_items = db_tools.find_product_items_by_name(request.form.get('srch_req'))
+    return render_template('_search_items_result.html', found_items=found_items)
+
 
 @app.route('/products',  methods=['GET', 'POST'])
 @auth.login_required
