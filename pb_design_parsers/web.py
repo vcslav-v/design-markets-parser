@@ -61,7 +61,7 @@ def make_products():
     creators = db_tools.get_creators()
     free_cm_products = db_tools.get_free_cm_products()
     markets = db_tools.get_markets()
-    num_additional_ids = 12
+    num_additional_ids = 20
     if request.method == 'POST':
         product_name = request.form.get('product_name')
         if not product_name or db_tools.is_product_name_exist(product_name):
