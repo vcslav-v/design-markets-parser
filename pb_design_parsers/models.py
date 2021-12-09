@@ -1,9 +1,14 @@
 """DataBase models."""
-from sqlalchemy import Column, ForeignKey, Integer, Text, Date, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, Text, Date, Boolean, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
+
+bundle_items = Table('bundle_items', Base.metadata,
+    Column('bundles_id', ForeignKey('bundles.id')),
+    Column('product_item_id', ForeignKey('product_item.id'))
+)
 
 
 class Product(Base):
@@ -19,6 +24,18 @@ class Product(Base):
 
     creator_id = Column(Integer, ForeignKey('creators.id'))
     creator = relationship('Creator', back_populates='products')
+
+
+class Bundle(Base):
+    """Bundle."""
+
+    __tablename__ = 'bundles'
+
+    id = Column(Integer, primary_key=True)
+
+    bundle_item = relationship('ProductItem', back_populates='bundle', uselist=False)
+
+    items = relationship('ProductItem', secondary=bundle_items, back_populates='in_bundles')
 
 
 class ProductItem(Base):
@@ -45,6 +62,11 @@ class ProductItem(Base):
     account = relationship('Account', back_populates='product_items')
 
     sales = relationship('Sale', back_populates='product_item')
+
+    bundle_id = Column(Integer, ForeignKey('bundles.id'))
+    bundle = relationship('Bundle', back_populates='bundle_item')
+
+    in_bundles = relationship('Bundle', secondary=bundle_items, back_populates='items')
 
 
 class Sale(Base):

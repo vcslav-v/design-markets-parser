@@ -36,6 +36,29 @@
                             </td>
                         </tr>
                     {% endfor %}
+                    {% for row in bundles_info %}
+                    {% set id = row[0] %}
+                    {% set name = row[1] %}
+                    {% set items = row[2] %}
+                        <tr id="product_{{ id }}">
+                            <th scope="row">{{ id }}</th>
+                            <td>{{ name }}</td>
+                            <td>
+                            {% for item in items %}
+                            {% set market = item[0] %}
+                            {% set acc = item[1] %}
+                            {% set name = item[2] %}
+                            {% set url = item[3] %}
+                                <p class="my-3">{{ market }} ({{acc}}) <br> <a href="{{ url }}">{{ name }}</a></p>
+                            {% endfor %}
+                            </td>
+                            <td>
+                                <form class="row g-3 mx-3" method="post" action="{{ url_for('cur_products') }}" enctype="multipart/form-data">
+                                    <button class="btn btn-outline-danger btn-sm" type="submit" name="bundle_rm" value="{{id}}">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

@@ -250,6 +250,23 @@ def make_product(product_name: str, creator_id: int, item_ids: list[int]):
         session.commit()
         return True
 
+
+def make_bundle(bunlde_item_id: int, item_ids: list[int]):
+    with db.SessionLocal() as session:
+        db_bundle_item = session.query(models.ProductItem).filter_by(id=bunlde_item_id).first()
+        if not db_bundle_item or db_bundle_item.bundle_id:
+            return False
+        bundle = models.Bundle(bundle_item=db_bundle_item)
+        for item_id in item_ids:
+            db_item = session.query(models.ProductItem).filter_by(id=item_id).first()
+            if not db_item:
+                return False
+            bundle.items.append(db_item)
+        session.add(bundle)
+        session.commit()
+        return True
+        
+
 @logger.catch
 def get_all_products_info():
     sql_request = """
@@ -273,6 +290,30 @@ def get_all_products_info():
 
 
 @logger.catch
+def get_all_bundles_info():
+    sql_request = """
+        SELECT market_places.name as market, accounts.username as acc, product_item.name, product_item.url
+        FROM product_item
+        join bundle_items on bundle_items.product_item_id = product_item.id
+        JOIN accounts ON accounts.id = product_item.account_id 
+        JOIN market_places ON market_places.id = accounts.market_place_id 
+        WHERE bundle_items.bundles_id = {bundle_id}
+        ;
+    """
+
+    with db.SessionLocal() as session:
+        result = []
+        db_bundles = session.query(models.Bundle).all()
+        for db_bundle in db_bundles:
+            db_bundle_item = session.query(models.ProductItem).filter_by(bundle=db_bundle).first()
+            db_responce = session.execute(
+                sql_request.format(bundle_id=db_bundle.id)
+            )
+            result.append([db_bundle.id, db_bundle_item.name , list(db_responce)])
+    return result
+
+
+@logger.catch
 def get_free_cm_products():
     sql_request = f"""
         SELECT product_item.name, url
@@ -281,7 +322,7 @@ def get_free_cm_products():
             select accounts.id 
             from accounts join market_places on accounts.market_place_id = market_places.id
             where market_places.domain = '{os.environ.get('MARKET_FOR_TIPS')}' and accounts.username = '{os.environ.get('USERNAME_FOR_TIPS')}'
-        ) and product_item.product_id is null
+        ) and product_item.product_id is null and product_item.bundle_id is null
         ;
     """
     with db.SessionLocal() as session:
@@ -313,7 +354,9 @@ def find_product_items_by_name(item_name: str):
             FROM product_item 
             JOIN accounts ON accounts.id = product_item.account_id
             JOIN market_places ON market_places.id = accounts.market_place_id 
-            WHERE product_item.url IS not NULL AND product_item.product_id is null and product_item.name ILIKE '%{pattren}%'
+            WHERE product_item.url IS not NULL AND product_item.product_id is null 
+            and bundle_id is null
+            and product_item.name ILIKE '%{pattren}%'
             ORDER BY product_item.name
         ;
     """
@@ -321,6 +364,31 @@ def find_product_items_by_name(item_name: str):
         db_responce = session.execute(sql_request)
 
     return list(db_responce)
+
+@logger.catch
+def find_product_acc_items_by_name(item_name: str, bundle_id: int):
+    pattren = item_name.strip()
+    pattren = pattren.replace(' ', '%')
+    with db.SessionLocal() as session:
+        db_bundle = session.query(models.ProductItem).filter_by(id=bundle_id).first()
+        if not db_bundle:
+            return []
+        sql_request = f"""
+            SELECT product_item.id, product_item.name, url, username, market_places.name
+                FROM product_item 
+                JOIN accounts ON accounts.id = product_item.account_id
+                JOIN market_places ON market_places.id = accounts.market_place_id 
+                WHERE product_item.url IS not NULL AND product_item.product_id is null
+                and bundle_id is null
+                and product_item.id != {bundle_id}
+                and account_id = {db_bundle.account_id}
+                and product_item.name ILIKE '%{pattren}%'
+                ORDER BY product_item.name
+            ;
+        """
+        db_responce = session.execute(sql_request)
+        return list(db_responce)
+
 
 @logger.catch
 def get_markets():
@@ -387,6 +455,13 @@ def rm_product_by_id(rm_id):
     with db.SessionLocal() as session:
         db_product = session.query(models.Product).filter_by(id=rm_id).first()
         session.delete(db_product)
+        session.commit()
+
+
+def rm_bundle_by_id(rm_id):
+    with db.SessionLocal() as session:
+        db_bundle = session.query(models.Bundle).filter_by(id=rm_id).first()
+        session.delete(db_bundle)
         session.commit()
 
 
