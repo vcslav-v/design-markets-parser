@@ -63,7 +63,10 @@
                     <button type="submit" name="btn" value="submit" class="btn btn-outline-success">Submit</button>
                 </form>
             </div>
-            <div class="row mt-5" id="search_result">
+            <div class="row mt-5">
+                <button type="button" class="btn btn-outline-info visually-hidden" id="add_all_btn">Add all</button>
+            </div>
+            <div class="row" id="search_result">
             </div>
         </div>
         <div class="col-md-1">
@@ -85,8 +88,23 @@
 {% endblock %}
 {% block script %}
 <script>
+    $('#add_all_btn').on('click', function(event){
+        event.preventDefault();
+        for(found_id of $('th[name="found_id"]')){
+            for(id_input of $('input[name^="item_id:"]')) {
+                if(id_input.value == ""){
+                    id_input.value = found_id.getAttribute('data');
+                    break
+                }
+            }
+        }
+    });
+    
+</script>
+<script>
     var searchInput = document.getElementById('exampleDataList');
     searchInput.oninput = function(event) {
+        $('#add_all_btn').removeClass('visually-hidden')
         var formData = new FormData()
         formData.append('srch_req', searchInput.value)
         $.ajax({
@@ -108,4 +126,5 @@
             });
     };
 </script>
+
 {% endblock%}

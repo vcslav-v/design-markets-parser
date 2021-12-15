@@ -1,8 +1,9 @@
 {% if found_items %}
+
     <table class="table table-striped">
         <thead>
             <tr>
-                <th scope="col">id</th>
+                <th scope="col" >id</th>
                 <th scope="col">Item name</th>
                 <th scope="col">Market</th>
                 <th scope="col">Link</th>
@@ -16,7 +17,7 @@
             {% set acc = row[3] %}
             {% set market = row[4] %}
                 <tr>
-                    <th scope="row">{{item_id}}</th>
+                    <th scope="row" name="found_id" data="{{item_id}}">{{item_id}}</th>
                     <td>{{item_name}}</td>
                     <td>{{market}} ({{acc}})</td>
                     <td><a href="{{ item_link }}" target='_blank'>Link</a></td>
