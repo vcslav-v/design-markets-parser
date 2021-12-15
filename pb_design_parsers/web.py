@@ -79,6 +79,7 @@ def make_products():
         except ValueError:
             flash("You've lost your creator")
         else:
+            is_bundle = True if request.form.get('is_bundle') else False
             item_ids = []
             for key, value in request.form.to_dict().items():
                 kw, *_ = key.split(':')
@@ -89,7 +90,9 @@ def make_products():
                         flash('Use numbers, jerk!')
                         break
             else:
-                if not db_tools.make_product(
+                if is_bundle and len(item_ids) != 1:
+                    flash('We need one product - bundle, you now?! Gosh')
+                elif not db_tools.make_product(
                         product_name,
                         creator_id,
                         item_ids,
