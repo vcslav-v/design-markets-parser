@@ -93,6 +93,7 @@ def make_products():
                         product_name,
                         creator_id,
                         item_ids,
+                        True if request.form.get('is_bundle') else False
                     ):
                     flash('Wrong id')
 
@@ -106,59 +107,10 @@ def make_products():
     )
 
 
-@app.route('/make-bundle',  methods=['GET', 'POST'])
-@auth.login_required
-def make_bundle():
-    found_items = []
-    free_cm_products = db_tools.get_free_cm_products()
-    num_additional_ids = 20
-    if request.method == 'POST':
-        try:
-            bundle_item_id = int(request.form.get('bundle_item'))
-        except ValueError:
-            flash('Enter bundle id')
-        else:
-            item_ids = []
-            for key, value in request.form.to_dict().items():
-                kw, *_ = key.split('-')
-                if kw == 'item_id' and value:
-                    try:
-                        item_ids.append(int(value))
-                    except ValueError:
-                        flash('Use numbers, jerk!')
-                        break
-            if not db_tools.make_bundle(
-                        bundle_item_id,
-                        item_ids,
-                    ):
-                    flash('Wrong id')
-
-    return render_template(
-        'make_bundle.html',
-        num_additional_ids=num_additional_ids,
-        found_items=found_items,
-        free_cm_products=free_cm_products,
-    )
-
-
 @app.route('/search-items',  methods=['POST'])
 @auth.login_required
 def search_free_items():
     found_items = db_tools.find_product_items_by_name(request.form.get('srch_req'))
-    return render_template('_search_items_result.html', found_items=found_items)
-
-
-@app.route('/search-acc-items',  methods=['POST'])
-@auth.login_required
-def search_acc_items():
-    try:
-        bundle_item_id = int(request.form.get('bundle_item_id'))
-    except ValueError:
-        flash('Enter bundle id')
-    found_items = db_tools.find_product_acc_items_by_name(
-        request.form.get('srch_req'),
-        bundle_item_id,
-        )
     return render_template('_search_items_result.html', found_items=found_items)
 
 
@@ -169,15 +121,10 @@ def cur_products():
         rm_id = request.form.get('rm')
         if rm_id:
             db_tools.rm_product_by_id(int(rm_id))
-        rm_b_id = request.form.get('bundle_rm')
-        if rm_b_id:
-            db_tools.rm_bundle_by_id(int(rm_b_id))
     products_info = db_tools.get_all_products_info()
-    bundles_info = db_tools.get_all_bundles_info()
     return render_template(
         'products_list.html',
         products_info=products_info,
-        bundles_info=bundles_info,
     )
 
 
