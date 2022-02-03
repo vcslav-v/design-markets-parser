@@ -102,6 +102,11 @@ def parse_items():
 
     logger.info('Parsing items done')
 
+@sched.scheduled_job('cron', hour=12, minute=40)
+@logger.catch
+def test():
+    creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
+
 
 if __name__ == "__main__":
     logger.add(sink=send_tg_alarm, level='INFO')
