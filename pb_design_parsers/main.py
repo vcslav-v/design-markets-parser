@@ -102,7 +102,7 @@ def parse_items():
 
     logger.info('Parsing items done')
 
-@sched.scheduled_job('cron', hour=13, minute=16)
+@sched.scheduled_job('cron', hour=14, minute=8)
 @logger.catch
 def test():
     envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))

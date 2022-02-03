@@ -83,12 +83,12 @@ def parse(username, password):
     _, last_month_day = calendar.monthrange(start_date.year, start_date.month)
     check_date = start_date + timedelta(days=last_month_day-1)
     sale_data = []
-    if check_date >= datetime.utcnow().date():
+    if check_date >= datetime.utcnow().date() - timedelta(days=40):
         return
 
     driver = get_logined_driver(username, password)
 
-    while check_date < datetime.utcnow().date():
+    while check_date < datetime.utcnow().date() - timedelta(days=40):
         sale_data.extend(get_data(driver, check_date))
 
         temp_date = check_date + timedelta(days=1)
