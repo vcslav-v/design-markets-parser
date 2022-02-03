@@ -102,10 +102,10 @@ def parse_items():
 
     logger.info('Parsing items done')
 
-@sched.scheduled_job('cron', hour=13, minute=5)
+@sched.scheduled_job('cron', hour=13, minute=16)
 @logger.catch
 def test():
-    creative.parse(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
+    envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
 
 
 
