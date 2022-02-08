@@ -102,7 +102,7 @@ def parse_items():
 
     logger.info('Parsing items done')
 
-@sched.scheduled_job('cron', hour=7, minute=47)
+@sched.scheduled_job('cron', hour=8, minute=43)
 @logger.catch
 def test():
     designcuts.parse(

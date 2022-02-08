@@ -1,7 +1,9 @@
+import calendar
 import email
 import imaplib
+import imp
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
@@ -43,10 +45,11 @@ def parse(username, mail_username, mail_password, imap_server, folder):
                 break
     products = []
     for soup in soups:
-        logger.debug(soup)
-        raw_date = re.search(r'(?<=--)\d{2}\.\d{2}\.\d{4}(?=,)', soup.text).group(0)
-        _, month, year = raw_date.split('.')
-        date = datetime.fromisoformat(f'{year}-{month}-01').date() - timedelta(days=1)
+        raw_date = re.search(r'(?<=Marketplace report for ).*(?=,)', soup.text).group(0)
+        month, year = raw_date.split(' ')
+        first_day_date = datetime.strptime(f'{year}-{month}-01', '%Y-%B-%d').date()
+        _, last_month_day = calendar.monthrange(first_day_date.year, first_day_date.month)
+        date = datetime.strptime(f'{year}-{month}-{last_month_day}', '%Y-%B-%d').date()
         rows = soup.find_all('tr')[1:-1]
         for row in rows:
             cells = row.find_all('td')
