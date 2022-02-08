@@ -102,10 +102,16 @@ def parse_items():
 
     logger.info('Parsing items done')
 
-@sched.scheduled_job('cron', hour=14, minute=8)
+@sched.scheduled_job('cron', hour=7, minute=33)
 @logger.catch
 def test():
-    envanto.parse(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
+    designcuts.parse(
+            os.environ.get('DC_USER'),
+            os.environ.get('BOT_MAIL_USER'),
+            os.environ.get('BOT_MAIL_PASSWORD'),
+            os.environ.get('BOT_MAIL_IMAP'),
+            os.environ.get('DC_PARSE_FOLDER'),
+        )
 
 
 
