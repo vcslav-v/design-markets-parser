@@ -33,8 +33,8 @@ def parse(username, mail_username, mail_password, imap_server, folder):
     for mails_body in mails_bodies:
         email_messages.append(email.message_from_bytes(mails_body))
 
-    # for email_uid in email_uids:
-    #     mail.store(email_uid, '+FLAGS', '\\Deleted')
+    for email_uid in email_uids:
+        mail.store(email_uid, '+FLAGS', '\\Deleted')
 
     soups = []
     for email_message in email_messages:

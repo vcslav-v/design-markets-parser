@@ -105,13 +105,7 @@ def parse_items():
 @sched.scheduled_job('cron', hour=8, minute=43)
 @logger.catch
 def test():
-    designcuts.parse(
-            os.environ.get('DC_USER'),
-            os.environ.get('BOT_MAIL_USER'),
-            os.environ.get('BOT_MAIL_PASSWORD'),
-            os.environ.get('BOT_MAIL_IMAP'),
-            os.environ.get('DC_PARSE_FOLDER'),
-        )
+    pass
 
 
 
