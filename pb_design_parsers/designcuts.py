@@ -31,8 +31,8 @@ def parse(username, mail_username, mail_password, imap_server, folder):
     for mails_body in mails_bodies:
         email_messages.append(email.message_from_bytes(mails_body))
 
-    for email_uid in email_uids:
-        mail.store(email_uid, '+FLAGS', '\\Deleted')
+    # for email_uid in email_uids:
+    #     mail.store(email_uid, '+FLAGS', '\\Deleted')
 
     soups = []
     for email_message in email_messages:
@@ -43,6 +43,7 @@ def parse(username, mail_username, mail_password, imap_server, folder):
                 break
     products = []
     for soup in soups:
+        logger.debug(soup)
         raw_date = re.search(r'(?<=--)\d{2}\.\d{2}\.\d{4}(?=,)', soup.text).group(0)
         _, month, year = raw_date.split('.')
         date = datetime.fromisoformat(f'{year}-{month}-01').date() - timedelta(days=1)
