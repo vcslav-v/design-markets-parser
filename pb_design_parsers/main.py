@@ -66,10 +66,10 @@ def parse_markets():
     logger.info('Parsing sales done')
 
 
-@sched.scheduled_job('cron', hour=8, minute=43)
+@sched.scheduled_job('cron', hour=15, minute=0)
 @logger.catch
 def test():
-    pass
+    creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
 
 
 

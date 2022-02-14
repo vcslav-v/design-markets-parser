@@ -1,10 +1,11 @@
 import os
+import io
 import secrets
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
-from pb_design_parsers import db_tools, schemas
+from pb_design_parsers import creative, db_tools, schemas
 from pb_design_parsers.api import service
 
 router = APIRouter()
@@ -33,6 +34,15 @@ def get_creators(_: str = Depends(get_current_username)) -> schemas.creators:
 @router.post('/get_markets')
 def get_markets(_: str = Depends(get_current_username)) -> schemas.market_places:
     return db_tools.get_markets()
+
+@router.post('/post_sale_file')
+def post_sale_file(prefix: str, file: UploadFile):
+    market_place, username, *_ = prefix.split()
+    with io.StringIO(file.file.read().decode()) as file_stream:
+        if market_place == 'cm':
+            creative.add_data(username, file_stream)
+    
+
 
 @router.post('/post_product')
 def post_product(product_info: schemas.product, _: str = Depends(get_current_username)) -> schemas.result:

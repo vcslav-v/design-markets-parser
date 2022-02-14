@@ -58,22 +58,24 @@ def get_data_csv(driver):
 
 
 def push_data_csv(driver, username):
-    driver.get('https://dm-parser.herokuapp.com/upload-data')
+    driver.get(os.environ.get('SELF_POST_FILE_FORM'))
     try:
-        input_file = WebDriverWait(driver, timeout=20).until(
-            lambda d: d.find_element(By.XPATH, '//input[@name="data_file"]')
+        try_btn = WebDriverWait(driver, timeout=20).until(
+            lambda d: d.find_element(By.XPATH, '//button[@class="btn try-out__btn"]')
         )
     except TimeoutError:
-        driver.get('https://dm-parser.herokuapp.com/upload-data')
-        input_file = WebDriverWait(driver, timeout=20).until(
-            lambda d: d.find_element(By.XPATH, '//input[@name="data_file"]')
+        driver.get(os.environ.get('SELF_POST_FILE_FORM'))
+        try_btn = WebDriverWait(driver, timeout=20).until(
+            lambda d: d.find_element(By.XPATH, '//button[@class="btn try-out__btn"]')
         )
+    try_btn.click()
+    input_file = driver.find_element(By.XPATH, '//input[@type="file"]')
     input_file.send_keys('/home/selenium/Downloads/Creative Market Sales.csv')
-    input_prefix = driver.find_element(By.XPATH, '//input[@name="prefix"]')
+    input_prefix = driver.find_element(By.XPATH, '//input[@placeholder="prefix"]')
     input_prefix.send_keys(CM_PB_PREFIX.format(username=username))
     submit_button = driver.find_element(
         By.XPATH,
-        '//input[@name="data_file"]/../button[@type="submit"]'
+        "//button[contains(.,'Execute')]"
     )
     submit_button.click()
 
@@ -94,25 +96,22 @@ def parse(username, password):
     push_data_csv(driver, username)
 
 
-def add_data(username):
+def add_data(username, file):
     today = datetime.utcnow().date()
     cm_domain = 'creativemarket.com'
     last_data_day = db_tools.get_last_date_in_db(cm_domain, username)
-    paths = uploaded_files(CM_PB_PREFIX.format(username=username))
-
-    for path in paths:
-        with open(path, 'r') as csv_file:
-            reader = csv.reader(csv_file)
-            next(reader, None)
-            for row in reader:
-                date, product, customer, price, earnings = row[0], row[2], row[3], row[4], row[5]
-                date = datetime.fromisoformat(date).date()
-                price = int(float(price.replace(',', '')) * 100)
-                earnings = int(float(earnings.replace(',', '')) * 100)
-                reffered = True if customer == 'Referred Customer' else False
-
-                if last_data_day < date < today:
-                    db_tools.add_sale(date, price, earnings, product, reffered, cm_domain, username)
+    reader = csv.reader(file)
+    next(reader)
+    for row in reader:
+        logger.debug(row)
+        return
+        date, product, customer, price, earnings = row[0], row[2], row[3], row[4], row[5]
+        date = datetime.fromisoformat(date).date()
+        price = int(float(price.replace(',', '')) * 100)
+        earnings = int(float(earnings.replace(',', '')) * 100)
+        reffered = True if customer == 'Referred Customer' else False
+        if last_data_day < date < today:
+            db_tools.add_sale(date, price, earnings, product, reffered, cm_domain, username)
 
 
 def get_logined_driver(username, password):
