@@ -66,42 +66,6 @@ def parse_markets():
     logger.info('Parsing sales done')
 
 
-@sched.scheduled_job('cron', day_of_week='sun', hour=0)
-@logger.catch
-def parse_items():
-    logger.info('Start parsing items')
-    try:
-        creative.refresh_products(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
-    except Exception as e:
-        logger.error(e.args)
-
-    try:
-        creative.refresh_products(os.environ.get('CM_USER_1'), os.environ.get('CM_USER_PASS_1'))
-    except Exception as e:
-        logger.error(e.args)
-
-    try:
-        envanto.refresh_products(os.environ.get('ELEM_USER'), os.environ.get('ELEM_USER_PASS'))
-    except Exception as e:
-        logger.error(e.args)
-
-    try:
-        yellowimgs.refresh_products(os.environ.get('YIM_USER'), os.environ.get('YIM_USER_PASS'))
-    except Exception as e:
-        logger.error(e.args)
-
-    try:
-        designcuts.refresh_products(os.environ.get('DC_USER'))
-    except Exception as e:
-        logger.error(e.args)
-
-    try:
-        youworkforthem.refresh_products(os.environ.get('YWFT_USER'), os.environ.get('YWFT_USER_ID'))
-    except Exception as e:
-        logger.error(e.args)
-
-    logger.info('Parsing items done')
-
 @sched.scheduled_job('cron', hour=8, minute=43)
 @logger.catch
 def test():
