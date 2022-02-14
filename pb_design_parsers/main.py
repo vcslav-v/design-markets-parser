@@ -69,8 +69,7 @@ def parse_markets():
 @sched.scheduled_job('cron', hour=15, minute=0)
 @logger.catch
 def test():
-    creative.parse(os.environ.get('CM_USER'), os.environ.get('CM_USER_PASS'))
-
+    pass
 
 
 if __name__ == "__main__":

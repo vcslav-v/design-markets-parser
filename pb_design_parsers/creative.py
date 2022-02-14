@@ -103,8 +103,6 @@ def add_data(username, file):
     reader = csv.reader(file)
     next(reader)
     for row in reader:
-        logger.debug(row)
-        return
         date, product, customer, price, earnings = row[0], row[2], row[3], row[4], row[5]
         date = datetime.fromisoformat(date).date()
         price = int(float(price.replace(',', '')) * 100)
