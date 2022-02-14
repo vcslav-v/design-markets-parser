@@ -1,7 +1,9 @@
 import json
 import os
 
-from pb_design_parsers import db, models
+from sqlalchemy import true
+
+from pb_design_parsers import db, models, schemas
 from pb_design_parsers import REFER_PRODUCT_NAME
 from cryptography.fernet import Fernet
 from datetime import datetime
@@ -171,85 +173,55 @@ def get_last_date_in_db(domain, username):
         return datetime.fromtimestamp(0).date()
 
 
-def add_product_item(
-    market_domain: str,
-    account_name: str,
-    name: str,
-    url: str,
-    is_live: bool,
-    categories: list,
-    licenses: dict,
-):
+def add_product_item(item: schemas.item) -> int:
     with db.SessionLocal() as session:
-        db_market = session.query(models.MarketPlace).filter_by(domain=market_domain).first()
-        if not db_market:
-            db_market = models.MarketPlace(domain=market_domain)
-            session.add(db_market)
-            session.commit()
-
-        db_account = session.query(models.Account).filter_by(
-            username=account_name,
-            market_place=db_market,
-        ).first()
-        if not db_account:
-            db_account = models.Account(
-                username=account_name,
-                market_place=db_market,
-            )
-            session.add(db_account)
-            session.commit()
+        db_account = session.query(models.Account).filter_by(id=item.account_id).first()
 
         db_product_item = session.query(models.ProductItem).filter_by(
-            name=name,
-            account=db_account
+            url=item.url
         ).first()
         if not db_product_item:
-            db_product_item = models.ProductItem(name=name, account=db_account)
+            db_product_item = models.ProductItem(url=item.url)
+            session.add(db_product_item)
 
-        db_product_item.url = url
-        db_product_item.category = '/'.join(categories)
-        db_product_item.is_live = is_live
+        db_product_item.account = db_account
+        db_product_item.name = item.name
+        db_product_item.category = '/'.join(item.cattegories)
+        db_product_item.is_live = True
 
         db_product_item.special_license = None
-        for name_license, price in licenses.items():
-            if 'personal' in name_license.lower():
-                db_product_item.personal_price_cents = price
-            elif 'commercial' in name_license.lower() and 'extended' not in name_license.lower():
-                db_product_item.commercial_price_cents = price
-            elif 'extended' in name_license.lower():
-                db_product_item.extended_price_cents = price
-            else:
-                license_text = f'{name_license}-{price}'.lower()
-                if db_product_item.special_license:
-                    db_product_item.special_license = '/'.join(
-                        [db_product_item.special_license, license_text],
-                    )
-                else:
-                    db_product_item.special_license = license_text
+        if item.personal_price:
+            db_product_item.personal_price_cents = item.personal_price
+        if item.commercial_price:
+            db_product_item.commercial_price_cents = item.commercial_price
+        if item.extended_price:
+            db_product_item.extended_price_cents = item.extended_price
 
-        session.add(db_product_item)
         session.commit()
+        return db_product_item.id
 
 
-def make_product(product_name: str, creator_id: int, item_ids: list[int], is_bundle: bool):
+def make_product(product_info: schemas.product):
     with db.SessionLocal() as session:
-        db_creator = session.query(models.Creator).filter_by(id=creator_id).first()
+        db_creator = session.query(models.Creator).filter_by(id=product_info.creator_id).first()
+        db_product = session.query(models.Product).filter_by(name=product_info.name).first()
+        if db_product:
+            raise ValueError(f'Product {product_info.name} exist already')
         product = models.Product(
-            name=product_name,
+            name=product_info.name,
             creator=db_creator,
-            is_bundle=is_bundle
+            is_bundle=product_info.is_bundle
         )
         session.add(product)
         session.commit()
-        for item_id in item_ids:
-            db_item = session.query(models.ProductItem).filter_by(id=item_id).first()
+        for item in product_info.items:
+            db_item = session.query(models.ProductItem).filter_by(id=item.ident).first()
             if not db_item:
                 session.delete(product)
                 session.commit()
-                return False
+                raise ValueError(f'DB problem with {item.url}')
             db_item.product = product
         session.commit()
-        return True
    
 
 @logger.catch
@@ -293,7 +265,7 @@ def get_free_cm_products():
 
 
 @logger.catch
-def get_creators():
+def get_creators() -> schemas.creators:
     sql_request = f"""
         SELECT id, name
             FROM creators 
@@ -302,8 +274,16 @@ def get_creators():
     """
     with db.SessionLocal() as session:
         db_responce = session.execute(sql_request)
-
-    return list(db_responce)
+    result = schemas.creators()
+    for row in db_responce:
+        ident, name = row
+        result.creators.append(
+            schemas.creator(
+                ident=ident,
+                name=name,
+            )
+        )
+    return result
 
 
 @logger.catch
@@ -327,9 +307,9 @@ def find_product_items_by_name(item_name: str):
 
 
 @logger.catch
-def get_markets():
+def get_markets() -> schemas.market_places:
     sql_request = """
-        SELECT market_places.name, accounts.username 
+        SELECT accounts.id, market_places.name, accounts.username 
             FROM market_places
             JOIN accounts ON accounts.market_place_id = market_places.id 
             ORDER BY market_places.name
@@ -338,7 +318,17 @@ def get_markets():
     with db.SessionLocal() as session:
         db_responce = session.execute(sql_request)
 
-    return list(db_responce)
+    result = schemas.market_places()
+    for row in db_responce:
+        account_ident, market_place_name, account_name = row
+        result.market_places.append(
+            schemas.market_place(
+                account_ident=account_ident,
+                account_name=account_name,
+                market_name=market_place_name,
+            )
+        )
+    return result
 
 
 @logger.catch
@@ -401,3 +391,9 @@ def is_product_name_exist(product_name):
             return True
         else:
             return False
+
+
+def get_market_domain_by_acc_id(acc_id: int) -> str:
+    with db.SessionLocal() as session:
+        db_acc = session.query(models.Account).filter_by(id=acc_id).first()
+        return db_acc.market_place.domain

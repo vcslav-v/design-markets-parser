@@ -200,54 +200,5 @@ def parse_product_info(driver, product_link):
         category_name = breadcrumb_elem.text
         categories.append(category_name.lower())
 
-    status_elem = driver.find_element(By.XPATH, '//span[@class="status-label"]')
-    is_live = True if 'Live' in status_elem.text else False
 
-    item_license_prices = {}
-    try:
-        modal_link_elem = WebDriverWait(driver, timeout=10).until(
-            lambda d: d.find_element(
-                By.XPATH,
-                '//div[@class="license-section"]//a[contains(@class, "license-modal-link")]',
-            )
-        )
-        modal_link_elem.click()
-    except TimeoutException:
-        license_title_elems = WebDriverWait(driver, timeout=10).until(
-            lambda d: d.find_elements(
-                By.XPATH,
-                '//span[@class="license-title"]',
-            )
-        )
-
-        for license_title_elem in license_title_elems:
-            name_license = license_title_elem.text
-            lic_div = f'//div[@class="license-section"]//span[contains(., "{name_license}")]/../..'
-            price_elem = driver.find_element(
-                By.XPATH,
-                f'{lic_div}/div[@class="license-price"]',
-            )
-            price_license = price_elem.text
-            price_license = int(float(price_license[1:]) * 100)
-            item_license_prices[name_license] = price_license
-
-    else:
-        license_button_elems = WebDriverWait(driver, timeout=10).until(
-            lambda d: d.find_elements(
-                By.XPATH,
-                '//div[@class="right"]/button[contains(@class, "license-button")]',
-            )
-        )
-
-        for license_button_elem in license_button_elems:
-            name_license = license_button_elem.get_attribute('data-tracking')
-            license_button_path = f'//div[@class="right"]/button[@data-tracking="{name_license}"]'
-            price_elem = driver.find_element(
-                By.XPATH,
-                f'{license_button_path}//span[contains(@class, "license-price")]',
-            )
-            price_license = price_elem.text
-            price_license = int(float(price_license[1:]) * 100)
-            item_license_prices[name_license] = price_license
-
-    return (product_name, product_link, is_live, categories, item_license_prices)
+    return (product_name, categories)

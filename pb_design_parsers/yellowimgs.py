@@ -177,7 +177,7 @@ def push_db(username, product_items):
         db_tools.add_product_item('yellowimages.com', username, *product_item)
 
 
-def parse_product_info(driver, product_link, is_live):
+def parse_product_info(driver, product_link):
     driver.get(product_link)
     name_elem = WebDriverWait(driver, timeout=10).until(
         lambda d: d.find_element(
@@ -197,32 +197,4 @@ def parse_product_info(driver, product_link, is_live):
         category_name = category_elem.text
         categories.append(category_name.lower())
 
-    license_elems = WebDriverWait(driver, timeout=10).until(
-        lambda d: d.find_elements(
-            By.XPATH,
-            '//table[@class="productcosts"]//tr',
-        )
-    )
-    item_license_prices = {}
-    for license_elem in license_elems:
-        lic_id = license_elem.get_attribute('id')
-        license_name_elem = driver.find_element(
-            By.XPATH,
-            f'//table[@class="productcosts"]//tr[@id="{lic_id}"]/td[contains(text(), "License")]',
-        )
-        license_name = license_name_elem.text
-        if 'standard' in license_name.lower():
-            license_name = 'commercial'
-        elif 'enhanced' in license_name.lower():
-            license_name = 'extended'
-
-        price_elem = driver.find_element(
-            By.XPATH,
-            f'//table[@class="productcosts"]//tr[@id="{lic_id}"]//span[@class="price amount"]',
-        )
-        license_price = price_elem.text
-        license_price = int(float(license_price[1:]) * 100)
-
-        item_license_prices[license_name] = license_price
-
-    return (product_name, product_link, is_live, categories, item_license_prices)
+    return (product_name, categories)

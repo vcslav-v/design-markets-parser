@@ -112,7 +112,6 @@ def refresh_products(username):
 
 def parse_product_info(driver, product_link):
     driver.get(product_link)
-    is_live = True
     product_name_elem = WebDriverWait(driver, timeout=20).until(
         lambda d: d.find_element(By.XPATH, '//section[@id="product-hero"]//h1')
     )
@@ -133,22 +132,4 @@ def parse_product_info(driver, product_link):
         categories = category_path.strip('/').split('/')
         categories = categories[1:]
 
-    try:
-        price_elem = WebDriverWait(driver, timeout=5).until(
-            lambda d: d.find_element(
-                By.XPATH,
-                '//section[@id="product-hero"]//span[@class="btn-price"]/ins',
-            )
-        )
-    except TimeoutException:
-        price_elem = WebDriverWait(driver, timeout=5).until(
-            lambda d: d.find_element(
-                By.XPATH,
-                '//section[@id="product-hero"]//span[@class="btn-price"]',
-            )
-        )
-    price = price_elem.text
-    price = int(float(price[1:])*100)
-    item_license_prices = {'commercial': price}
-
-    return (product_name, product_link, is_live, categories, item_license_prices)
+    return (product_name, categories)

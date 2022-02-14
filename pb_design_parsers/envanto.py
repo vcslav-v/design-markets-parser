@@ -160,8 +160,6 @@ def get_logined_driver(username, password):
 
 def parse_product_info(driver, product_link):
     driver.get(product_link)
-    is_live = True
-    item_license_prices = {}
 
     product_name_elem = WebDriverWait(driver, timeout=20).until(
         lambda d: d.find_element(By.XPATH, '//h1')
@@ -176,4 +174,4 @@ def parse_product_info(driver, product_link):
         category_name = categories_elem.text
         categories.append(category_name.lower())
 
-    return (product_name, product_link, is_live, categories, item_license_prices)
+    return (product_name, categories)

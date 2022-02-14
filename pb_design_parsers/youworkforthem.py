@@ -169,21 +169,12 @@ def refresh_products(username, designer_uid):
 
 
 def parse_product_info(driver, product_link):
-    logger.debug(product_link)
-    is_live = True
     driver.get(product_link)
 
     name_elem = WebDriverWait(driver, timeout=10).until(
         lambda d: d.find_element(By.XPATH, '//h1')
     )
     product_name = name_elem.text
-
-    price_elem = WebDriverWait(driver, timeout=10).until(
-        lambda d: d.find_element(By.XPATH, '//div[contains(@class, "productPrice")]/span')
-    )
-    price = price_elem.text
-    price = int(float(price[1:]) * 100)
-    item_license_prices = {'commercial': price, 'extended': 10000}
 
     categories = [urlparse(product_link).path.strip('/').split('/')[0]]
 
@@ -193,4 +184,4 @@ def parse_product_info(driver, product_link):
     )
     categories.append(category_element.text)
 
-    return (product_name, product_link, is_live, categories, item_license_prices)
+    return (product_name, categories)
